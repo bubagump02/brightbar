@@ -64,7 +64,14 @@ final class XDROverlay {
         view.colorspace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB)
         view.layer?.isOpaque = false
         (view.layer as? CAMetalLayer)?.wantsExtendedDynamicRangeContent = true
-        view.layer?.compositingFilter = "multiplyBlendMode"
+        // As BrightIntosh does: a 1x1 drawable stretched over a white layer,
+        // with the "multiply" filter. A full-size drawable with
+        // "multiplyBlendMode" turns the whole screen white once EDR engages
+        // (~1 s after showing the overlay).
+        view.autoResizeDrawable = false
+        view.drawableSize = CGSize(width: 1, height: 1)
+        view.layer?.backgroundColor = CGColor(red: 1, green: 1, blue: 1, alpha: 1)
+        view.layer?.compositingFilter = "multiply"
         // Redraw only when the multiplier changes.
         view.enableSetNeedsDisplay = true
         view.isPaused = true
