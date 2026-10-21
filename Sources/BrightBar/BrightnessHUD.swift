@@ -1,5 +1,6 @@
-// BrightBar's own brightness indicator, shown on F1/F2 in place of the macOS
-// one: a small non-activating panel at the top right of the target screen.
+// BrightBar's own brightness indicator, shown on F1/F2 (and the keyboard
+// illumination keys) in place of the macOS one: a small non-activating panel
+// under BrightBar's menu bar icon on the target screen.
 
 import AppKit
 import SwiftUI
@@ -12,25 +13,33 @@ final class BrightnessHUD {
         /// Bar fill, 0...1.
         @Published var fraction: Double = 0
         @Published var badge: String?
+        @Published var symbols = ("sun.min", "sun.max")
     }
 
     private let state = State()
     private var panel: NSPanel?
     private var hideWork: DispatchWorkItem?
 
-    func show(name: String, label: String, fraction: Double, badge: String?, on screen: NSScreen?) {
+    func show(name: String, label: String, fraction: Double, badge: String?,
+              symbols: (String, String) = ("sun.min", "sun.max"), on screen: NSScreen?) {
         state.name = name
         state.label = label
         state.fraction = min(max(fraction, 0), 1)
         state.badge = badge
+        state.symbols = symbols
 
         let panel = self.panel ?? makePanel()
         self.panel = panel
         if let screen = screen ?? NSScreen.main {
-            // Same spot as the macOS 26 indicator: under the menu bar, right side.
+            // Under the menu bar, centered on BrightBar's icon; at the right
+            // side like the macOS 26 indicator if the icon can't be found.
             let f = screen.visibleFrame
             let size = panel.frame.size
-            panel.setFrameOrigin(NSPoint(x: f.maxX - size.width - 12, y: f.maxY - size.height - 8))
+            var x = f.maxX - size.width - 12
+            if let offset = Self.iconOffsetFromRight() {
+                x = min(max(screen.frame.maxX - offset - size.width / 2, f.minX + 8), f.maxX - size.width - 8)
+            }
+            panel.setFrameOrigin(NSPoint(x: x, y: f.maxY - size.height - 8))
         }
         panel.alphaValue = 1
         panel.orderFrontRegardless()
@@ -41,6 +50,17 @@ final class BrightnessHUD {
         }
         hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: work)
+    }
+
+    /// Distance from the icon's center to the right edge of its screen. Every
+    /// screen's menu bar puts the status items at the same distance from its
+    /// right edge, so this also places the HUD on another screen.
+    private static func iconOffsetFromRight() -> CGFloat? {
+        // MenuBarExtra hides its NSStatusItem; its button lives in this window.
+        guard let icon = NSApp.windows.first(where: { $0.className == "NSStatusBarWindow" && $0.isVisible })?.frame,
+              let iconScreen = NSScreen.screens.first(where: { $0.frame.contains(NSPoint(x: icon.midX, y: icon.midY)) })
+        else { return nil }
+        return iconScreen.frame.maxX - icon.midX
     }
 
     private func hide() {
@@ -85,7 +105,7 @@ final class BrightnessHUD {
                     Text(state.label).font(.callout).monospacedDigit().foregroundStyle(.secondary)
                 }
                 HStack(spacing: 8) {
-                    Image(systemName: "sun.min").font(.caption)
+                    Image(systemName: state.symbols.0).font(.caption)
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             Capsule().fill(Color.primary.opacity(0.15))
@@ -94,7 +114,7 @@ final class BrightnessHUD {
                         }
                     }
                     .frame(height: 6)
-                    Image(systemName: "sun.max").font(.caption)
+                    Image(systemName: state.symbols.1).font(.caption)
                 }
                 .foregroundStyle(.secondary)
             }

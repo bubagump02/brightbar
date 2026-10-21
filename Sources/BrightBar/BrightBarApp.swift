@@ -5,6 +5,7 @@ import SwiftUI
 struct BrightBarApp: App {
     @StateObject private var model: BrightnessModel
     @StateObject private var features = FeaturesModel()
+    @StateObject private var keyboard: KeyboardModel
     @StateObject private var externals: ExternalDisplaysModel
     @StateObject private var auto: AutoBrightness
     @StateObject private var keys: BrightnessKeys
@@ -16,10 +17,12 @@ struct BrightBarApp: App {
         let externals = ExternalDisplaysModel(builtin: model.$value)
         externals.extraDimmers = { [weak model] in model?.activeGamma.map { [$0] } ?? [] }
         externals.onScreensChanged = { [weak model] in model?.screensChanged() }
-        let keyController = KeyController(builtin: model, externals: externals)
+        let keyboard = KeyboardModel()
+        let keyController = KeyController(builtin: model, externals: externals, keyboard: keyboard)
         self.keyController = keyController
         _model = StateObject(wrappedValue: model)
         _externals = StateObject(wrappedValue: externals)
+        _keyboard = StateObject(wrappedValue: keyboard)
         _auto = StateObject(wrappedValue: AutoBrightness(builtin: model, externals: externals))
         _keys = StateObject(wrappedValue: keyController.keys)
         // New status items land leftmost and end up hidden behind the notch on
@@ -32,7 +35,7 @@ struct BrightBarApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys)
+            MenuView(model: model, features: features, keyboard: keyboard, externals: externals, auto: auto, keys: keys)
         } label: {
             Image(nsImage: MenuBarIcon.image(level: model.level))
         }
@@ -49,6 +52,7 @@ struct BrightBarApp: App {
 struct MenuView: View {
     @ObservedObject var model: BrightnessModel
     @ObservedObject var features: FeaturesModel
+    @ObservedObject var keyboard: KeyboardModel
     @ObservedObject var externals: ExternalDisplaysModel
     @ObservedObject var auto: AutoBrightness
     @ObservedObject var keys: BrightnessKeys
@@ -138,6 +142,11 @@ struct MenuView: View {
                 }
             }
 
+            if keyboard.isAvailable {
+                Divider()
+                KeyboardView(keyboard: keyboard, keys: keys)
+            }
+
             if !externals.items.isEmpty {
                 Divider()
                 ExternalsView(externals: externals)
@@ -155,6 +164,7 @@ struct MenuView: View {
         .onAppear {
             model.refresh()
             features.refresh()
+            keyboard.refresh()
             externals.reload()
         }
     }
@@ -168,6 +178,33 @@ enum LevelText {
         case ..<0: return "Sous zéro \(n) %"
         case ...100: return "\(n) %"
         default: return "XDR \(n) %"
+        }
+    }
+}
+
+/// Keyboard backlight, like Control Center's Keyboard Brightness module.
+struct KeyboardView: View {
+    @ObservedObject var keyboard: KeyboardModel
+    @ObservedObject var keys: BrightnessKeys
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Clavier").font(.subheadline.weight(.semibold))
+                if keys.active {
+                    Text("⌃F1 / ⌃F2").font(.caption2).foregroundStyle(.tertiary)
+                }
+                Spacer()
+                if let v = keyboard.value {
+                    Text(v == 0 ? "Éteint" : "\(Int(v.rounded())) %")
+                        .monospacedDigit().font(.caption).foregroundStyle(.secondary)
+                }
+            }
+            HStack(spacing: 8) {
+                Image(systemName: "light.min").foregroundStyle(.secondary)
+                Slider(value: Binding(get: { keyboard.value ?? 0 }, set: { keyboard.set($0) }), in: 0...100)
+                Image(systemName: "light.max").foregroundStyle(.secondary)
+            }
         }
     }
 }
