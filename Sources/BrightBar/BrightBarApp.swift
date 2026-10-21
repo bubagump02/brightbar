@@ -33,7 +33,7 @@ struct BrightBarApp: App {
         MenuBarExtra {
             MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys)
         } label: {
-            Image(systemName: model.level > 100 ? "sun.max.fill" : model.level < 50 ? "sun.min" : "sun.max")
+            Image(nsImage: MenuBarIcon.image(level: model.level))
         }
         .menuBarExtraStyle(.window)
 
