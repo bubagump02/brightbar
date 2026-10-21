@@ -36,7 +36,6 @@ final class XDROverlay {
         let view = self.view ?? makeWindow(on: screen)
         if window?.frame != screen.frame { window?.setFrame(screen.frame, display: false) }
         view.clearColor = MTLClearColor(red: multiplier, green: multiplier, blue: multiplier, alpha: 1)
-        view.needsDisplay = true
         window?.orderFrontRegardless()
     }
 
@@ -72,9 +71,10 @@ final class XDROverlay {
         view.drawableSize = CGSize(width: 1, height: 1)
         view.layer?.backgroundColor = CGColor(red: 1, green: 1, blue: 1, alpha: 1)
         view.layer?.compositingFilter = "multiply"
-        // Redraw only when the multiplier changes.
-        view.enableSetNeedsDisplay = true
-        view.isPaused = true
+        // Keep presenting frames: macOS dims EDR content a few seconds after
+        // it stops updating. 5 fps is what BrightIntosh uses; a 1x1 clear
+        // costs nothing.
+        view.preferredFramesPerSecond = 5
         if let device {
             let renderer = Renderer(device: device)
             view.delegate = renderer
