@@ -32,14 +32,14 @@ struct BrightBarApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys, login: login)
+            MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys)
         } label: {
             Image(nsImage: MenuBarIcon.image(level: model.level))
         }
         .menuBarExtraStyle(.window)
 
-        Window("Luminosité automatique", id: "auto") {
-            AutoSettingsView(auto: auto)
+        Window("Réglages BrightBar", id: "auto") {
+            AutoSettingsView(auto: auto, login: login)
         }
         .windowResizability(.contentSize)
     }
@@ -52,7 +52,6 @@ struct MenuView: View {
     @ObservedObject var externals: ExternalDisplaysModel
     @ObservedObject var auto: AutoBrightness
     @ObservedObject var keys: BrightnessKeys
-    @ObservedObject var login: LaunchAtLogin
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -143,51 +142,20 @@ struct MenuView: View {
                 Divider()
                 ExternalsView(externals: externals)
             }
-
-            Divider()
-
-            Button(action: FeaturesModel.openDisplaySettings) {
-                Text("Réglages des moniteurs…").frame(maxWidth: .infinity, alignment: .leading).contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Toggle("Ouvrir à l'ouverture de session", isOn: Binding(get: { login.enabled }, set: { login.set($0) }))
-                    .toggleStyle(.checkbox)
-                    .font(.caption)
-                    .disabled(!login.isInstalled)
-                if !login.isInstalled {
-                    Text("Installe l'app dans Applications (scripts/install.sh) pour l'activer.")
-                        .font(.caption2).foregroundStyle(.secondary)
-                } else if login.needsApproval {
-                    Button("Autoriser dans Éléments de connexion…", action: LaunchAtLogin.openLoginItemsSettings)
-                        .buttonStyle(.link).font(.caption2)
-                } else if let error = login.error {
-                    Text(error).font(.caption2).foregroundStyle(.orange)
-                }
-            }
-
-            HStack {
-                if let method = model.method {
-                    Text(method == "ds" ? "DisplayServices" : "CoreDisplay")
-                        .font(.caption)
-                        .foregroundStyle(.tertiary)
-                }
-                Spacer()
-                Button("Quitter BrightBar") { NSApplication.shared.terminate(nil) }
-                    .buttonStyle(.plain)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .keyboardShortcut("q")
-            }
         }
         .padding(16)
         .frame(width: 320)
+        // No visible Quit button any more (it lives in Réglages BrightBar);
+        // keep ⌘Q working while the panel is open.
+        .background {
+            Button("") { NSApplication.shared.terminate(nil) }
+                .keyboardShortcut("q")
+                .opacity(0)
+        }
         .onAppear {
             model.refresh()
             features.refresh()
             externals.reload()
-            login.refresh()
         }
     }
 }

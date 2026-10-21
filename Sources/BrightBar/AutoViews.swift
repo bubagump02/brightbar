@@ -25,7 +25,7 @@ struct AutoSection: View {
                     Image(systemName: "slider.horizontal.3")
                 }
                 .buttonStyle(.borderless)
-                .help("Configurer les horaires et le capteur")
+                .help("Réglages : horaires, capteur, ouverture de session, quitter")
             }
 
             if let line = statusLine {
@@ -73,9 +73,28 @@ struct AutoSection: View {
 /// Settings window: schedule points with a 24 h preview, and the sensor curve offset.
 struct AutoSettingsView: View {
     @ObservedObject var auto: AutoBrightness
+    @ObservedObject var login: LaunchAtLogin
 
     var body: some View {
         Form {
+            Section("Général") {
+                Toggle("Ouvrir à l'ouverture de session", isOn: Binding(get: { login.enabled }, set: { login.set($0) }))
+                    .disabled(!login.isInstalled)
+                if !login.isInstalled {
+                    Text("Installe l'app dans Applications (scripts/install.sh) pour l'activer.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else if login.needsApproval {
+                    Button("Autoriser dans Éléments de connexion…", action: LaunchAtLogin.openLoginItemsSettings)
+                        .buttonStyle(.link).font(.caption)
+                } else if let error = login.error {
+                    Text(error).font(.caption).foregroundStyle(.orange)
+                }
+                HStack {
+                    Spacer()
+                    Button("Quitter BrightBar") { NSApplication.shared.terminate(nil) }
+                }
+            }
+
             Section("Horaires") {
                 ScheduleChart(points: auto.points)
                     .frame(height: 120)
@@ -131,6 +150,7 @@ struct AutoSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear { login.refresh() }
         .frame(width: 460)
         .fixedSize(horizontal: false, vertical: true)
     }

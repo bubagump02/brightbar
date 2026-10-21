@@ -24,7 +24,7 @@ Install, or update after a code change:
 
 The script quits the running copy, replaces `/Applications/BrightBar.app` and relaunches it.
 
-**Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications`. The "Ouvrir à l'ouverture de session" checkbox in the panel turns it on or off, and it also shows up in System Settings → General → Login Items.
+**Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications`. The "Ouvrir à l'ouverture de session" checkbox in the settings window (⚙︎ button in the panel) turns it on or off, and it also shows up in System Settings → General → Login Items.
 
 The login item points at the installed copy, so it is greyed out when the app runs from `build/`.
 
@@ -41,8 +41,7 @@ A sun icon sits in the menu bar. Click it to open the panel. The panel replaces 
 - **Header**: the display name. Click it to open Displays settings.
 - **Slider**: sets the brightness immediately while you drag.
 - **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center.
-- **Displays settings…**: opens System Settings → Displays.
-- The footer shows which brightness API is in use.
+- **Settings (⚙︎)**: the "Réglages BrightBar" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
 
 The icon starts about 300 pt from the right edge, so it doesn't land behind the notch. ⌘-drag it to move it.
 
@@ -65,7 +64,7 @@ The built-in slider covers an extended range, as Lunar does (paid features there
 
 ### Auto mode
 
-The **Manual / Schedule / Sensor** picker sits under the slider. A status line shows the target. The ⚙︎ button opens the settings window.
+The **Manual / Schedule / Sensor** picker sits under the slider. A status line shows the target. The ⚙︎ button opens the "Réglages BrightBar" window.
 
 | Mode | Behaviour |
 |---|---|
