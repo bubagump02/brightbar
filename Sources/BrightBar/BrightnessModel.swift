@@ -128,12 +128,15 @@ final class BrightnessModel: ObservableObject {
         default:
             restoreGamma()
             setNative(100, animated: animated)
-            if let screen {
-                let headroom = XDROverlay.headroom(of: screen)
-                xdr.set(1 + (headroom - 1) * (l - 100) / 100, on: screen)
-            }
+            updateXDR()
         }
         if user { onUserChange?() }
+    }
+
+    private func updateXDR() {
+        guard level > 100, let screen else { return }
+        let headroom = XDROverlay.headroom(of: screen)
+        xdr.set(1 + (headroom - 1) * (level - 100) / 100, on: screen)
     }
 
     /// App-driven changes (auto modes): native only, system transition.
@@ -144,8 +147,10 @@ final class BrightnessModel: ObservableObject {
     }
 
     /// After a display reconfiguration: the overlay must match the new frame.
+    /// macOS also posts this dozens of times while EDR ramps up, so only the
+    /// overlay is touched, not the native backlight.
     func screensChanged() {
-        if level > 100 { setLevel(level) }
+        updateXDR()
     }
 
     /// Lowest native value sent unless `off`. On the MacBook Pro XDR panel an
