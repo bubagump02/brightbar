@@ -41,6 +41,7 @@ A sun icon sits in the menu bar. Click it to open the panel. The panel replaces 
 - **Header**: the display name. Click it to open Displays settings.
 - **Slider**: sets the brightness immediately while you drag.
 - **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center.
+- **Clavier**: keyboard backlight slider (0 = off), as in Control Center's Keyboard Brightness module. It follows changes made elsewhere. Hidden on Macs without a backlit keyboard. To have BrightBar replace the macOS module: System Settings → Control Center → **Keyboard Brightness** → *Don't Show in Menu Bar* (and leave it out of Control Center).
 - **Settings (⚙︎)**: the "Réglages BrightBar" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
 
 The icon starts about 300 pt from the right edge, so it doesn't land behind the notch. ⌘-drag it to move it.
@@ -125,7 +126,11 @@ The keys are swallowed, so the macOS indicator no longer shows. BrightBar applie
   - Without that identity, the script signs ad hoc. The requirement is then the cdhash, which changes with every build, so macOS forgets the permission each time.
   - To recreate the identity: generate a self-signed certificate with EKU `codeSigning`, export it as a legacy PKCS#12 (`-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1`, which OpenSSL ≥ 3 needs), then `security import … -T /usr/bin/codesign`.
 
-BrightBar defines no shortcuts of its own: the earlier ⌃⌥ ones collided with Magnet.
+**Keyboard backlight: ⌃F1 / ⌃F2**, and the illumination keys on Macs that have them (`NX_KEYTYPE_ILLUMINATION_UP/DOWN` = 21/22). Same tap, 10 % steps (⌃⌥⇧: 5 %), BrightBar's indicator labelled "Clavier" instead of the macOS one. The 14"/16" Apple Silicon MacBook Pros have no illumination keys, hence ⌃F1/⌃F2.
+- Free on a default setup: macOS binds ⌃F1 (keyboard access) and ⌃F2 (menu bar focus) only with fn, i.e. on the real F-keys, and ⌃ + brightness is otherwise only used for Apple external displays, which BrightBar already drives through the pointer.
+- Without a keyboard backlight, ⌃F1/⌃F2 go to macOS untouched.
+
+BrightBar defines no other shortcuts: the earlier ⌃⌥ ones collided with Magnet.
 
 ### Hiding the macOS Display module
 
@@ -137,6 +142,7 @@ BrightBar then takes its place.
 | Dark Mode | SkyLight `SLSGetAppearanceThemeLegacy` / `SLSSetAppearanceThemeLegacy`; change notification `AppleInterfaceThemeChangedNotification` |
 | Night Shift | CoreBrightness `CBBlueLightClient` `getBlueLightStatus:` / `setEnabled:` / `setStatusNotificationBlock:` |
 | True Tone | CoreBrightness `CBTrueToneClient` `supported` / `available` / `enabled` / `setEnabled:` |
+| Keyboard backlight | CoreBrightness `KeyboardBrightnessClient` `copyKeyboardBacklightIDs` / `brightnessForKeyboard:` / `setBrightness:forKeyboard:` / `enableAutoBrightness:forKeyboard:`; changes through `registerNotificationForKeys:keyboardID:block:` with key `KeyboardBacklightBrightness` (value 0…1) |
 
 ## CLI
 
@@ -150,6 +156,8 @@ brightness [--method ds|cd] <command>
   info                    show display id, available APIs and probe results
   status                  Dark Mode, Night Shift, True Tone state
   dark|night|truetone on|off
+  kbd [0-100]             keyboard backlight: print, or set
+  kbd auto on|off         macOS "adjust keyboard brightness in low light"
   lux                     ambient light (lux) and the sensor mode's target
   schedule                schedule mode's target now, for the default points
   ddc list                external displays and their DDC brightness

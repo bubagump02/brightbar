@@ -1,5 +1,6 @@
-// Intercepts the brightness keys (F1/F2) before macOS handles them, so the
-// system OSD doesn't show and BrightBar applies the change itself. Same idea
+// Intercepts the brightness keys (F1/F2), ⌃F1/⌃F2 and the keyboard
+// illumination keys of Macs that have them, before macOS handles them, so the system OSD doesn't
+// show and BrightBar applies the change itself. Same idea
 // as Lunar's MediaKeyTap: a session event tap on NSSystemDefined events.
 // Needs the Accessibility permission.
 
@@ -8,7 +9,7 @@ import ApplicationServices
 
 @MainActor
 final class BrightnessKeys: ObservableObject {
-    enum Key { case up, down }
+    enum Key { case up, down, keyboardUp, keyboardDown }
 
     /// Accessibility granted and the tap is running.
     @Published private(set) var active = false
@@ -23,6 +24,8 @@ final class BrightnessKeys: ObservableObject {
     // NX_KEYTYPE_* from IOKit/hidsystem/ev_keymap.h
     private static let brightnessUp = 2
     private static let brightnessDown = 3
+    private static let illuminationUp = 21
+    private static let illuminationDown = 22
     // NX_SUBTYPE_AUX_CONTROL_BUTTONS
     private static let auxControlButtons: Int16 = 8
 
@@ -75,13 +78,22 @@ final class BrightnessKeys: ObservableObject {
         let data = ns.data1
         let code = (data & 0xFFFF_0000) >> 16
         let isDown = ((data & 0xFF00) >> 8) == 0xA
-        guard code == Self.brightnessUp || code == Self.brightnessDown else {
-            return Unmanaged.passUnretained(event)
+        // ⌃F1/⌃F2 drive the keyboard backlight: the 14"/16" Apple Silicon
+        // MacBook Pros have no illumination keys. macOS only binds ⌃ with fn
+        // (⌃F1 keyboard access, ⌃F2 menu bar focus), so this one is free.
+        let control = ns.modifierFlags.contains(.control)
+        let key: Key
+        switch code {
+        case Self.brightnessUp: key = control ? .keyboardUp : .up
+        case Self.brightnessDown: key = control ? .keyboardDown : .down
+        case Self.illuminationUp: key = .keyboardUp
+        case Self.illuminationDown: key = .keyboardDown
+        default: return Unmanaged.passUnretained(event)
         }
         // Treat key-up like its key-down, or macOS would see half a key press.
         guard isDown else { return swallowedDown ? nil : Unmanaged.passUnretained(event) }
         let fine = ns.modifierFlags.contains([.option, .shift])
-        swallowedDown = onKey?(code == Self.brightnessUp ? .up : .down, fine) ?? false
+        swallowedDown = onKey?(key, fine) ?? false
         return swallowedDown ? nil : Unmanaged.passUnretained(event)
     }
 

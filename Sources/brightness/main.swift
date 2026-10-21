@@ -19,6 +19,8 @@ usage: brightness [--method ds|cd] <command>
   info                    show display id and available APIs
   status                  Dark Mode, Night Shift, True Tone state
   dark|night|truetone on|off
+  kbd [0-100]             keyboard backlight: print, or set
+  kbd auto on|off         macOS "adjust keyboard brightness in low light"
   lux                     ambient light (lux) and the sensor mode's target
   schedule                schedule mode's target now, for the default points
   ddc list                external displays and their DDC brightness
@@ -68,6 +70,18 @@ case "night":
     exit(NightShift().setEnabled(onOff(args.dropFirst().first)) ? 0 : 1)
 case "truetone":
     exit(TrueTone().setEnabled(onOff(args.dropFirst().first)) ? 0 : 1)
+case "kbd":
+    guard let kbd = KeyboardBacklight() else { fail("no keyboard backlight") }
+    switch args.dropFirst().first {
+    case nil:
+        guard let v = kbd.brightness else { fail("keyboard read failed") }
+        print(String(format: "%.1f (auto: %@)", v * 100, kbd.autoBrightnessAvailable ? "\(kbd.autoBrightness)" : "unavailable"))
+        exit(0)
+    case "auto":
+        exit(kbd.setAutoBrightness(onOff(args.dropFirst(2).first)) ? 0 : 1)
+    case let value:
+        exit(kbd.set(percent(value)) ? 0 : 1)
+    }
 case "ddc":
     let displays = externalDisplays()
     switch args.dropFirst().first {
