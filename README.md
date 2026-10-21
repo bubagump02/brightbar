@@ -11,17 +11,22 @@ See [LUNAR_BRIGHTNESS_RE.md](LUNAR_BRIGHTNESS_RE.md) for the reverse-engineering
 | `Sources/BrightnessKit` | Library: private API bindings, `BuiltinControl`, `BrightnessObserver`, `Appearance` / `NightShift` / `TrueTone` |
 | `Sources/BrightBar` | SwiftUI `MenuBarExtra` app |
 | `Sources/brightness` | CLI |
-| `scripts/make-app.sh` | Builds `build/BrightBar.app` (ad-hoc signed, menu bar only) |
+| `scripts/make-app.sh` | Builds `build/BrightBar.app`, signed with "BrightBar Local", menu bar only |
+| `scripts/install.sh` | Builds, installs `/Applications/BrightBar.app` and relaunches it from there |
 
 ## Build and run
 
-```bash
-./scripts/make-app.sh
-```
+Install, or update after a code change:
 
 ```bash
-open build/BrightBar.app
+./scripts/install.sh
 ```
+
+The script quits the running copy, replaces `/Applications/BrightBar.app` and relaunches it.
+
+**Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications`. The "Ouvrir à l'ouverture de session" checkbox in the panel turns it on or off, and it also shows up in System Settings → General → Login Items.
+
+The login item points at the installed copy, so it is greyed out when the app runs from `build/`.
 
 CLI only:
 

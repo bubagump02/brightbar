@@ -8,6 +8,7 @@ struct BrightBarApp: App {
     @StateObject private var externals: ExternalDisplaysModel
     @StateObject private var auto: AutoBrightness
     @StateObject private var keys: BrightnessKeys
+    @StateObject private var login = LaunchAtLogin()
     private let keyController: KeyController
 
     init() {
@@ -31,7 +32,7 @@ struct BrightBarApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys)
+            MenuView(model: model, features: features, externals: externals, auto: auto, keys: keys, login: login)
         } label: {
             Image(nsImage: MenuBarIcon.image(level: model.level))
         }
@@ -51,6 +52,7 @@ struct MenuView: View {
     @ObservedObject var externals: ExternalDisplaysModel
     @ObservedObject var auto: AutoBrightness
     @ObservedObject var keys: BrightnessKeys
+    @ObservedObject var login: LaunchAtLogin
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -149,6 +151,22 @@ struct MenuView: View {
             }
             .buttonStyle(.plain)
 
+            VStack(alignment: .leading, spacing: 4) {
+                Toggle("Ouvrir à l'ouverture de session", isOn: Binding(get: { login.enabled }, set: { login.set($0) }))
+                    .toggleStyle(.checkbox)
+                    .font(.caption)
+                    .disabled(!login.isInstalled)
+                if !login.isInstalled {
+                    Text("Installe l'app dans Applications (scripts/install.sh) pour l'activer.")
+                        .font(.caption2).foregroundStyle(.secondary)
+                } else if login.needsApproval {
+                    Button("Autoriser dans Éléments de connexion…", action: LaunchAtLogin.openLoginItemsSettings)
+                        .buttonStyle(.link).font(.caption2)
+                } else if let error = login.error {
+                    Text(error).font(.caption2).foregroundStyle(.orange)
+                }
+            }
+
             HStack {
                 if let method = model.method {
                     Text(method == "ds" ? "DisplayServices" : "CoreDisplay")
@@ -169,6 +187,7 @@ struct MenuView: View {
             model.refresh()
             features.refresh()
             externals.reload()
+            login.refresh()
         }
     }
 }
