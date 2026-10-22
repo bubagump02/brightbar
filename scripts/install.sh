@@ -10,5 +10,7 @@ DEST=/Applications/BrightBar.app
 pkill -x BrightBar 2>/dev/null && sleep 0.5 || true
 rm -rf "$DEST"
 cp -R build/BrightBar.app "$DEST"
+# Make Finder and the Applications view pick up a changed icon.
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$DEST"
 open "$DEST"
 echo "installed $DEST"
