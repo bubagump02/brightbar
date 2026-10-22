@@ -30,7 +30,11 @@ struct AutoSection: View {
 
             if let line = statusLine {
                 HStack(spacing: 6) {
-                    Text(line).font(.caption).foregroundStyle(.secondary)
+                    Text(line)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .contentTransition(.numericText())
+                        .animation(.snappy, value: line)
                     if auto.pausedUntil != nil {
                         Button("Reprendre", action: auto.resume)
                             .buttonStyle(.link)

@@ -34,20 +34,67 @@ final class FeaturesModel: ObservableObject {
         trueTone = tone.isEnabled
     }
 
+    // Each toggle flips its state at once and applies it to the system once
+    // the toggle has animated: the system calls can stall the main thread
+    // (Dark Mode redraws every window), which would freeze it mid-animation.
+    // Applying whatever the state is by then also absorbs a quick double click.
+
     func toggleDark() {
-        Appearance.setDark(!dark)
         dark.toggle()
+        afterToggleAnimation { [weak self] in
+            guard let self, dark != Appearance.isDark else { return }
+            Self.crossfadeKeyWindow(dark: dark)
+            Appearance.setDark(dark)
+        }
     }
 
     func toggleNightShift() {
-        guard let s = nightShift else { return }
-        night.setEnabled(!s.enabled)
+        guard nightShift != nil else { return }
         nightShift?.enabled.toggle()
+        afterToggleAnimation { [weak self] in
+            guard let self, let want = nightShift?.enabled, night.status?.enabled != want else { return }
+            night.setEnabled(want)
+        }
     }
 
     func toggleTrueTone() {
-        tone.setEnabled(!trueTone)
         trueTone.toggle()
+        afterToggleAnimation { [weak self] in
+            guard let self, tone.isEnabled != trueTone else { return }
+            tone.setEnabled(trueTone)
+        }
+    }
+
+    /// Matches ToggleCircle's animation.
+    static let toggleAnimationDuration: Duration = .milliseconds(250)
+
+    private func afterToggleAnimation(_ apply: @escaping @MainActor () -> Void) {
+        Task { @MainActor in
+            try? await Task.sleep(for: Self.toggleAnimationDuration)
+            apply()
+        }
+    }
+
+    /// Crossfades the panel into the new appearance instead of letting it snap
+    /// when the system switches: the window takes the target appearance right
+    /// away, under a fade, then follows the system again once it has caught up.
+    private static func crossfadeKeyWindow(dark: Bool) {
+        guard let window = NSApp.keyWindow,
+              let layer = window.contentView?.superview?.layer ?? window.contentView?.layer
+        else { return }
+        let fade = CATransition()
+        fade.type = .fade
+        fade.duration = 0.3
+        fade.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+        layer.add(fade, forKey: "appearance")
+        let previous = window.appearance
+        window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+        window.layoutIfNeeded()
+        window.displayIfNeeded()
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1))
+            window.appearance = previous
+        }
     }
 
     var darkSubtitle: String {
