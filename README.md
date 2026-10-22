@@ -13,6 +13,7 @@ See [LUNAR_BRIGHTNESS_RE.md](LUNAR_BRIGHTNESS_RE.md) for the reverse-engineering
 | `Sources/brightness` | CLI |
 | `scripts/make-app.sh` | Builds `build/BrightBar.app`, signed with "BrightBar Local", menu bar only |
 | `scripts/install.sh` | Builds, installs `/Applications/BrightBar.app` and relaunches it from there |
+| `scripts/make-icon.swift` | Draws `Resources/AppIcon.icon` (Icon Composer bundle); `make-app.sh` compiles it with Xcode's `actool` |
 
 ## Build and run
 
