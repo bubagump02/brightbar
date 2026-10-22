@@ -276,7 +276,6 @@ struct ToggleCircle: View {
             VStack(spacing: 6) {
                 Image(systemName: symbol)
                     .font(.system(size: 18, weight: .medium))
-                    .symbolEffect(.bounce, value: isOn)
                     .frame(width: 44, height: 44)
                     .foregroundStyle(isOn ? Color.white : Color.primary)
                     .background(Circle().fill(isOn ? Color.accentColor : Color.primary.opacity(0.1)))
