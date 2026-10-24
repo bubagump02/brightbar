@@ -41,7 +41,7 @@ A sun icon sits in the menu bar. Click it to open the panel. The panel replaces 
 
 - **Header**: the display name. Click it to open Displays settings.
 - **Slider**: sets the brightness immediately while you drag.
-- **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center.
+- **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center. **⌃⌥⌘D** toggles Dark Mode from anywhere.
 - **Clavier**: keyboard backlight slider (0 = off), as in Control Center's Keyboard Brightness module. It follows changes made elsewhere. Hidden on Macs without a backlit keyboard. To have BrightBar replace the macOS module: System Settings → Control Center → **Keyboard Brightness** → *Don't Show in Menu Bar* (and leave it out of Control Center).
 - **Settings (⚙︎)**: the "Réglages BrightBar" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
 
@@ -130,6 +130,8 @@ The keys are swallowed, so the macOS indicator no longer shows. BrightBar applie
 **Keyboard backlight: ⌃F1 / ⌃F2**, and the illumination keys on Macs that have them (`NX_KEYTYPE_ILLUMINATION_UP/DOWN` = 21/22). Same tap, 10 % steps (⌃⌥⇧: 5 %), BrightBar's indicator labelled "Clavier" instead of the macOS one. The 14"/16" Apple Silicon MacBook Pros have no illumination keys, hence ⌃F1/⌃F2.
 - Free on a default setup: macOS binds ⌃F1 (keyboard access) and ⌃F2 (menu bar focus) only with fn, i.e. on the real F-keys, and ⌃ + brightness is otherwise only used for Apple external displays, which BrightBar already drives through the pointer.
 - Without a keyboard backlight, ⌃F1/⌃F2 go to macOS untouched.
+
+**Dark Mode: ⌃⌥⌘D.** A Carbon hot key (`RegisterEventHotKey`), not the tap, so it works without the Accessibility permission. Free on macOS and in Magnet, which takes ⌃⌥ + letters and ⌃⌥⌘ + arrows.
 
 BrightBar defines no other shortcuts: the earlier ⌃⌥ ones collided with Magnet.
 
