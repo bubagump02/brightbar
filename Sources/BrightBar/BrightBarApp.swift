@@ -11,6 +11,7 @@ struct BrightBarApp: App {
     @StateObject private var keys: BrightnessKeys
     @StateObject private var login = LaunchAtLogin()
     private let keyController: KeyController
+    private let darkModeHotKey = DarkModeHotKey()
 
     init() {
         let model = BrightnessModel()
@@ -127,6 +128,7 @@ struct MenuView: View {
                     symbol: "circle.lefthalf.filled", isOn: features.dark,
                     action: features.toggleDark
                 )
+                .help(DarkModeHotKey.label)
                 ToggleCircle(
                     title: "Night Shift", subtitle: features.nightShiftSubtitle,
                     symbol: "moon.stars", isOn: features.nightShift?.enabled ?? false,
