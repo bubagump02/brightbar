@@ -61,10 +61,14 @@ public struct NativeAPI: @unchecked Sendable {
     }
 }
 
-public func builtinDisplayID() -> CGDirectDisplayID? {
+public func onlineDisplayIDs() -> [CGDirectDisplayID] {
     var count: UInt32 = 0
-    guard CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 else { return nil }
+    guard CGGetOnlineDisplayList(0, nil, &count) == .success, count > 0 else { return [] }
     var ids = [CGDirectDisplayID](repeating: 0, count: Int(count))
-    guard CGGetOnlineDisplayList(count, &ids, &count) == .success else { return nil }
-    return ids.first { CGDisplayIsBuiltin($0) != 0 }
+    guard CGGetOnlineDisplayList(count, &ids, &count) == .success else { return [] }
+    return Array(ids.prefix(Int(count)))
+}
+
+public func builtinDisplayID() -> CGDirectDisplayID? {
+    onlineDisplayIDs().first { CGDisplayIsBuiltin($0) != 0 }
 }

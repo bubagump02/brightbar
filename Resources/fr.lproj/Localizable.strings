@@ -10,6 +10,7 @@
 "General" = "Général";
 "Schedule" = "Horaires";
 "Light sensor" = "Capteur de lumière";
+"Tinted Dark Mode" = "Mode sombre teinté";
 
 /* Brightness panel */
 "Retry" = "Réessayer";
@@ -35,6 +36,7 @@
 "Unavailable" = "Indisponible";
 "Sunset to sunrise" = "Coucher/lever";
 "until %@" = "jusqu'à %@";
+"Tinted" = "Teinté";
 
 /* External displays */
 "The display doesn't respond over DDC: the picture is darkened through the gamma table, the backlight doesn't change." = "L'écran ne répond pas en DDC : l'image est assombrie par la table gamma, le rétroéclairage ne change pas.";
@@ -45,7 +47,7 @@
 /* Auto mode */
 "Manual" = "Manuel";
 "Sensor" = "Capteur";
-"Settings: schedule, sensor, open at login, quit" = "Réglages : horaires, capteur, ouverture de session, quitter";
+"Settings: tinted Dark Mode, schedule, sensor, open at login, quit" = "Réglages : mode sombre teinté, horaires, capteur, ouverture de session, quitter";
 "Resume" = "Reprendre";
 "Turn off “Automatically adjust brightness” in System Settings › Displays, otherwise macOS and BrightBar fight each other." = "Désactive « Régler automatiquement la luminosité » dans Réglages › Moniteurs, sinon macOS et BrightBar se contredisent.";
 "Paused (manual change) until %@" = "En pause (réglage manuel) jusqu'à %@";
@@ -58,6 +60,11 @@
 "Install the app in Applications (scripts/install.sh) to enable it." = "Installe l'app dans Applications (scripts/install.sh) pour l'activer.";
 "Allow in Login Items…" = "Autoriser dans Éléments de connexion…";
 "Quit BrightBar" = "Quitter BrightBar";
+"Lighten Dark Mode and tint it blue" = "Éclaircir le mode sombre et le teinter en bleu";
+"Lighten" = "Éclaircir";
+"Blue" = "Bleu";
+"Takes effect when Dark Mode is on." = "S'applique quand le mode sombre est activé.";
+"Raises black toward a blue-grey on every display, in every app, while Dark Mode is on. White stays white. Photos and videos get the tint too; screenshots don't show it." = "Remonte le noir vers un gris bleuté sur tous les écrans, dans toutes les apps, tant que le mode sombre est activé. Le blanc reste blanc. Les photos et vidéos sont teintées aussi ; les captures d'écran ne le montrent pas.";
 "Add a point" = "Ajouter un point";
 "Reset to defaults" = "Valeurs par défaut";
 "Brightness changes in a straight line from one point to the next. A manual change pauses the mode until the next point." = "La luminosité varie en ligne droite d'un point au suivant. Un réglage manuel met le mode en pause jusqu'au point suivant.";
