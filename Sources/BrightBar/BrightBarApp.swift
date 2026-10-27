@@ -5,6 +5,7 @@ import SwiftUI
 struct BrightBarApp: App {
     @StateObject private var model: BrightnessModel
     @StateObject private var features = FeaturesModel()
+    @StateObject private var tint = DarkTintModel()
     @StateObject private var keyboard: KeyboardModel
     @StateObject private var externals: ExternalDisplaysModel
     @StateObject private var auto: AutoBrightness
@@ -16,7 +17,6 @@ struct BrightBarApp: App {
     init() {
         let model = BrightnessModel()
         let externals = ExternalDisplaysModel(builtin: model.$value)
-        externals.extraDimmers = { [weak model] in model?.activeGamma.map { [$0] } ?? [] }
         externals.onScreensChanged = { [weak model] in model?.screensChanged() }
         let keyboard = KeyboardModel()
         let keyController = KeyController(builtin: model, externals: externals, keyboard: keyboard)
@@ -36,14 +36,14 @@ struct BrightBarApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuView(model: model, features: features, keyboard: keyboard, externals: externals, auto: auto, keys: keys)
+            MenuView(model: model, features: features, tint: tint, keyboard: keyboard, externals: externals, auto: auto, keys: keys)
         } label: {
             Image(nsImage: MenuBarIcon.image(level: model.level))
         }
         .menuBarExtraStyle(.window)
 
         Window("BrightBar Settings", id: "auto") {
-            AutoSettingsView(auto: auto, login: login)
+            AutoSettingsView(auto: auto, tint: tint, login: login)
         }
         .windowResizability(.contentSize)
     }
@@ -53,6 +53,7 @@ struct BrightBarApp: App {
 struct MenuView: View {
     @ObservedObject var model: BrightnessModel
     @ObservedObject var features: FeaturesModel
+    @ObservedObject var tint: DarkTintModel
     @ObservedObject var keyboard: KeyboardModel
     @ObservedObject var externals: ExternalDisplaysModel
     @ObservedObject var auto: AutoBrightness
@@ -124,7 +125,8 @@ struct MenuView: View {
 
             HStack(alignment: .top) {
                 ToggleCircle(
-                    title: L("Dark Mode"), subtitle: features.darkSubtitle,
+                    title: L("Dark Mode"),
+                    subtitle: features.darkSubtitle + (tint.enabled && features.dark ? " · " + L("Tinted") : ""),
                     symbol: "circle.lefthalf.filled", isOn: features.dark,
                     action: features.toggleDark
                 )

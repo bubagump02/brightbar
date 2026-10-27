@@ -47,9 +47,9 @@ A sun icon sits in the menu bar. Click it to open the panel. The panel replaces 
 
 - **Header**: the display name. Click it to open Displays settings.
 - **Slider**: sets the brightness immediately while you drag.
-- **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center. **⌃⌥⌘D** toggles Dark Mode from anywhere.
+- **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center. **⌃⌥⌘D** toggles Dark Mode from anywhere. With the [tinted Dark Mode](#tinted-dark-mode) on, the Dark Mode caption reads "Tinted".
 - **Keyboard**: keyboard backlight slider (0 = off), as in Control Center's Keyboard Brightness module. It follows changes made elsewhere. Hidden on Macs without a backlit keyboard. To have BrightBar replace the macOS module: System Settings → Control Center → **Keyboard Brightness** → *Don't Show in Menu Bar* (and leave it out of Control Center).
-- **Settings (⚙︎)**: the "BrightBar Settings" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
+- **Settings (⚙︎)**: the "BrightBar Settings" window holds open-at-login, Quit (⌘Q also works while the panel is open), the tinted Dark Mode, the schedule and the sensor. The brightness API in use is shown by `brightness info`.
 
 The icon starts about 300 pt from the right edge, so it doesn't land behind the notch. ⌘-drag it to move it.
 
@@ -69,6 +69,25 @@ The built-in slider covers an extended range:
 - **XDR costs**: more battery and more heat. macOS may limit the gain when the Mac is hot.
 - **Sub-zero and Night Shift / True Tone**: no conflict on Apple Silicon, since those don't go through the gamma table. f.lux, which uses gamma, would conflict.
 - **Auto modes**: they drive the native backlight and leave the sub-zero/XDR range. A manual change into sub-zero or XDR pauses them, as usual.
+
+### Tinted Dark Mode
+
+macOS has no system-wide dark palette: every app picks its own colors. So BrightBar tints the **screen** instead, through the gamma table, which every pixel goes through. While macOS is in Dark Mode, black is raised toward a blue-grey and white stays white. Dark interfaces look lighter and bluer in every app, on every display.
+
+Turn it on in BrightBar Settings → **Tinted Dark Mode**. It's off by default.
+
+| Setting | Effect |
+|---|---|
+| Lighten (0–100, default 45) | How far black is raised: up to 20 % of the signal at 100 |
+| Blue (0–100, default 60) | 0 gives a neutral grey; 100 leans the black point to slate blue (red ×0.4, green ×0.7, blue ×1.6) |
+
+Each channel of the table maps x to `lift + (1 − lift) · x`, then the sub-zero or software-dimming factor applies on top. With the defaults, black becomes `#0F131F` and `#1E1E1E`, a common dark background, becomes `#2B2F3A`.
+
+- **Follows Dark Mode**: it fades in and out (0.3 s) when the appearance switches, from anywhere. In Light Mode the table is untouched.
+- **Acts on pixels, not on apps**: photos and videos get the tint too, and their blacks are raised. Screenshots and screen recordings don't show it, because the table applies after them.
+- **One table per display**: sub-zero, the software dimming of external monitors and the tint share one dimmer per display (`GammaTables`), so they combine instead of overwriting each other.
+- **Same rules as the rest of the gamma work**: reapplied after a reconfiguration or a wake, undone by macOS when BrightBar quits, in conflict with f.lux.
+- To try values without the app: `brightness tint <lighten> <blue> [secs]`.
 
 ### Auto mode
 
@@ -174,6 +193,8 @@ brightness [--method ds|cd] <command>
   gamma <n> <0-100> [secs]  software-dim external display <n>; macOS undoes
                           it when this process exits, so it holds for <secs>
                           (default: until Ctrl-C)
+  tint <0-100> <0-100> [secs]  tinted Dark Mode on every display: lighten,
+                          then blue; holds like gamma
 ```
 
 `--method` forces DisplayServices (`ds`) or CoreDisplay (`cd`).

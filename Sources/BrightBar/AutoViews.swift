@@ -25,7 +25,7 @@ struct AutoSection: View {
                     Image(systemName: "slider.horizontal.3")
                 }
                 .buttonStyle(.borderless)
-                .help("Settings: schedule, sensor, open at login, quit")
+                .help("Settings: tinted Dark Mode, schedule, sensor, open at login, quit")
             }
 
             if let line = statusLine {
@@ -74,9 +74,11 @@ struct AutoSection: View {
     }
 }
 
-/// Settings window: schedule points with a 24 h preview, and the sensor curve offset.
+/// Settings window: tinted Dark Mode, schedule points with a 24 h preview, and
+/// the sensor curve offset.
 struct AutoSettingsView: View {
     @ObservedObject var auto: AutoBrightness
+    @ObservedObject var tint: DarkTintModel
     @ObservedObject var login: LaunchAtLogin
 
     var body: some View {
@@ -97,6 +99,39 @@ struct AutoSettingsView: View {
                     Spacer()
                     Button("Quit BrightBar") { NSApplication.shared.terminate(nil) }
                 }
+            }
+
+            Section("Tinted Dark Mode") {
+                Toggle("Lighten Dark Mode and tint it blue", isOn: $tint.enabled)
+                Group {
+                    HStack {
+                        Text("Lighten")
+                        Slider(value: $tint.lighten, in: 0...100, step: 1)
+                        Text("\(Int(tint.lighten)) %")
+                            .monospacedDigit()
+                            .frame(width: 44, alignment: .trailing)
+                    }
+                    HStack {
+                        Text("Blue")
+                        Slider(value: $tint.blue, in: 0...100, step: 1)
+                        Text("\(Int(tint.blue)) %")
+                            .monospacedDigit()
+                            .frame(width: 44, alignment: .trailing)
+                    }
+                    HStack {
+                        if !tint.dark {
+                            Text("Takes effect when Dark Mode is on.")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                        }
+                        Spacer()
+                        Button("Reset to defaults", action: tint.resetDefaults)
+                    }
+                }
+                .disabled(!tint.enabled)
+                Text("Raises black toward a blue-grey on every display, in every app, while Dark Mode is on. White stays white. Photos and videos get the tint too; screenshots don't show it.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Schedule") {

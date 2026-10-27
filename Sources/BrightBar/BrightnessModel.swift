@@ -63,8 +63,6 @@ final class BrightnessModel: ObservableObject {
     var xdrSupported: Bool { XDROverlay.isSupported(on: screen) }
     var minLevel: Double { subzeroEnabled ? -100 : 0 }
     var maxLevel: Double { xdrEnabled && xdrSupported ? 200 : 100 }
-    /// Gamma dimmer to re-apply after macOS resets tables (reconfig, wake).
-    var activeGamma: GammaDimmer? { level < 0 ? gamma : nil }
 
     var screen: NSScreen? {
         guard let id = control?.id else { return nil }
@@ -120,7 +118,7 @@ final class BrightnessModel: ObservableObject {
         case ..<0:
             xdr.hide()
             setNative(0, animated: animated)
-            if gamma == nil, let id = control?.id { gamma = GammaDimmer(id: id) }
+            if gamma == nil, let id = control?.id { gamma = GammaTables.dimmer(for: id) }
             gamma?.set(factor: Float(Self.subzeroFactor(l)))
         case ...100:
             clearExtended(keepXDR: false)

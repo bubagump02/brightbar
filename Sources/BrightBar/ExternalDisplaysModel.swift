@@ -34,8 +34,8 @@ final class ExternalDisplaysModel: ObservableObject {
         didSet { UserDefaults.standard.set(followBuiltin, forKey: "followBuiltin") }
     }
 
-    /// Kept across reloads: a dimmer captured its reference table undimmed, and
-    /// re-reading the table now would compound the dimming.
+    /// Monitors dimmed in software. The dimmers themselves come from
+    /// GammaTables, which keeps them across reloads.
     private var dimmers: [CGDirectDisplayID: GammaDimmer] = [:]
     private var observers: [NSObjectProtocol] = []
     private var builtinSub: AnyCancellable?
@@ -103,7 +103,7 @@ final class ExternalDisplaysModel: ObservableObject {
 
     private func dimmer(for id: CGDirectDisplayID) -> GammaDimmer? {
         if let d = dimmers[id] { return d }
-        guard let d = GammaDimmer(id: id) else { return nil }
+        guard let d = GammaTables.dimmer(for: id) else { return nil }
         dimmers[id] = d
         // Restore the level saved for this monitor across launches.
         if let saved = UserDefaults.standard.object(forKey: Self.gammaKey(id)) as? Double {
@@ -129,14 +129,11 @@ final class ExternalDisplaysModel: ObservableObject {
         for item in items { set(item.id, v) }
     }
 
-    /// Other dimmers to restore alongside ours (built-in sub-zero): reapply()
-    /// resets every display's table, not only the external ones.
-    var extraDimmers: () -> [GammaDimmer] = { [] }
     /// Called after a display reconfiguration, once gamma is reapplied.
     var onScreensChanged: (() -> Void)?
 
     private func reapplyGamma() {
-        GammaDimmer.reapply(Array(dimmers.values) + extraDimmers())
+        GammaTables.reapply()
     }
 
     /// Per monitor, not per display id: ids change across reconnections.

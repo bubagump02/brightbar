@@ -28,6 +28,8 @@ usage: brightness [--method ds|cd] <command>
   gamma <n> <0-100> [secs]  software-dim external display <n>; macOS undoes
                           it when this process exits, so it holds for <secs>
                           (default: until Ctrl-C)
+  tint <0-100> <0-100> [secs]  tinted Dark Mode on every display: lighten,
+                          then blue; holds like gamma
 """
 
 var args = Array(CommandLine.arguments.dropFirst())
@@ -50,6 +52,17 @@ func onOff(_ s: String?) -> Bool {
     case "off": return false
     default: fail("expected on|off", code: 64)
     }
+}
+
+/// macOS undoes gamma changes when this process exits: keep it alive for
+/// `secs`, or until Ctrl-C.
+func hold(_ secs: String?) -> Never {
+    if let secs, let s = Double(secs) {
+        Thread.sleep(forTimeInterval: s)
+    } else {
+        RunLoop.main.run()
+    }
+    exit(0)
 }
 
 switch command {
@@ -124,12 +137,17 @@ case "gamma":
     guard dimmer.set(percent(args[2])) else { fail("display \(n): gamma write failed") }
     print(String(format: "applied factor: %.3f", dimmer.appliedFactor() ?? -1))
     fflush(stdout)
-    if args.count > 3, let secs = Double(args[3]) {
-        Thread.sleep(forTimeInterval: secs)
-    } else {
-        RunLoop.main.run()
-    }
-    exit(0)
+    hold(args.count > 3 ? args[3] : nil)
+case "tint":
+    guard args.count >= 3 else { fail(usage, code: 64) }
+    let tint = GammaTint(lighten: percent(args[1]), blue: percent(args[2]))
+    let dimmers = onlineDisplayIDs().compactMap { GammaDimmer(id: $0) }
+    guard !dimmers.isEmpty else { fail("no display with a gamma table") }
+    for d in dimmers where !d.set(tint: tint) { fail("display \(d.id): gamma write failed") }
+    let hex = [tint.red, tint.green, tint.blue].map { String(format: "%02lX", Int(($0 * 255).rounded())) }.joined()
+    print("black -> #\(hex) on \(dimmers.count) display(s)")
+    fflush(stdout)
+    hold(args.count > 3 ? args[3] : nil)
 default:
     break
 }
