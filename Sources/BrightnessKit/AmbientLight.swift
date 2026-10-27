@@ -1,4 +1,4 @@
-// Built-in ambient light sensor, read the way Lunar does: IOHIDEventSystemClient
+// Built-in ambient light sensor, read through IOHIDEventSystemClient
 // services matching the ALS usage (0xff00/4), then the ambient-light event's
 // lux field. Private IOKit symbols, resolved at runtime.
 

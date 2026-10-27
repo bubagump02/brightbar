@@ -30,8 +30,8 @@ final class KeyController {
         // macOS steps: 1/16, or 1/64 with ⌥⇧. Snap to the grid like it does.
         let next = { (v: Double, lo: Double, hi: Double) -> Double in
             // macOS's 1/16 in the native range (its bottom barely changes the
-            // light anyway), 1/32 in sub-zero, which is its own finer range
-            // like in Lunar. The keyboard backlight gets coarser 10 % steps,
+            // light anyway), 1/32 in sub-zero, which is its own finer range.
+            // The keyboard backlight gets coarser 10 % steps,
             // so it goes from off to full in a few presses. ⌥⇧ halves the step.
             let isKeyboard = key == .keyboardUp || key == .keyboardDown
             let inSubzero = v < 0 || (v == 0 && key == .down)

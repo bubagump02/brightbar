@@ -1,4 +1,4 @@
-// brightness — read/set built-in display brightness the way Lunar does it.
+// brightness — read/set built-in display brightness.
 
 import BrightnessKit
 import CoreGraphics

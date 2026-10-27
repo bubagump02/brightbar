@@ -1,5 +1,5 @@
-// External monitor brightness over DDC/CI on Apple Silicon, the way Lunar does
-// it: IOAVService (private, exported by IOKit) on the DCPAVServiceProxy of each
+// External monitor brightness over DDC/CI on Apple Silicon, through
+// IOAVService (private, exported by IOKit) on the DCPAVServiceProxy of each
 // external port, I²C chip 0x37, data address 0x51.
 // Intel Macs (IOFramebuffer I²C) are not supported.
 
@@ -67,7 +67,7 @@ public final class DDCChannel: @unchecked Sendable {
         // Get VCP Feature request: [0x82, 0x01, vcp, checksum]
         var request: [UInt8] = [0x82, 0x01, vcp.rawValue, 0]
         request[3] = checksum(request[0..<3])
-        // Lunar retries reads; some monitors need a second go after waking.
+        // Retry reads: some monitors need a second go after waking.
         for _ in 0..<3 {
             guard request.withUnsafeMutableBytes({ avWrite(service, Self.chip, Self.dataAddress, $0.baseAddress!, 4) }) == kIOReturnSuccess else {
                 usleep(40_000)
@@ -99,7 +99,7 @@ public final class DDCChannel: @unchecked Sendable {
         // Set VCP Feature: [0x84, 0x03, vcp, hi, lo, checksum]
         var packet: [UInt8] = [0x84, 0x03, vcp.rawValue, UInt8(v >> 8), UInt8(v & 0xFF), 0]
         packet[5] = checksum(packet[0..<5])
-        // Lunar sends every write twice, 15 ms apart: monitors silently drop some.
+        // Send every write twice, 15 ms apart: monitors silently drop some.
         var ok = false
         for i in 0..<2 {
             if i > 0 { usleep(15_000) }

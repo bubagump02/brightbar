@@ -6,7 +6,7 @@ import CoreGraphics
 /// Built-in display brightness, kept in sync with changes made outside the app
 /// (brightness keys, Control Center).
 ///
-/// `value` is the native backlight (0-100). `level` extends it, as Lunar does:
+/// `value` is the native backlight (0-100). `level` extends it:
 /// -100..<0  sub-zero: native at 0, picture darkened through the gamma table
 ///  0...100  native backlight only
 ///  100<..200 XDR: native at 100, EDR overlay brightens past the SDR limit

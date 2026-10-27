@@ -1,5 +1,5 @@
 // Software dimming through the display gamma table, for monitors that don't
-// take DDC (Lunar's "Software" control). It only darkens the picture: the
+// take DDC. It only darkens the picture: the
 // backlight stays where the monitor's OSD put it.
 //
 // macOS resets gamma tables on display reconfiguration and wake, and restores

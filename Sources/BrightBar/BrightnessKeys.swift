@@ -1,7 +1,7 @@
 // Intercepts the brightness keys (F1/F2), ⌃F1/⌃F2 and the keyboard
 // illumination keys of Macs that have them, before macOS handles them, so the system OSD doesn't
-// show and BrightBar applies the change itself. Same idea
-// as Lunar's MediaKeyTap: a session event tap on NSSystemDefined events.
+// show and BrightBar applies the change itself: a session event tap on
+// NSSystemDefined events.
 // Needs the Accessibility permission.
 
 import AppKit

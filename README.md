@@ -1,8 +1,7 @@
 # BrightBar
 
-A menu bar app and CLI that read and set the MacBook built-in display brightness the same way Lunar does.
+A menu bar app and CLI that read and set the MacBook built-in display brightness.
 They call the private DisplayServices API first and fall back to CoreDisplay.
-See [LUNAR_BRIGHTNESS_RE.md](LUNAR_BRIGHTNESS_RE.md) for the reverse-engineering notes.
 
 New here? Follow the [installation guide](INSTALL.md).
 
@@ -16,6 +15,7 @@ New here? Follow the [installation guide](INSTALL.md).
 | `scripts/make-app.sh` | Builds `build/BrightBar.app`, signed with "BrightBar Local", menu bar only |
 | `scripts/install.sh` | Builds, installs `/Applications/BrightBar.app` and relaunches it from there |
 | `scripts/make-icon.swift` | Draws `Resources/AppIcon.icon` (Icon Composer bundle); `make-app.sh` compiles it with Xcode's `actool` |
+| `scripts/make-icns.swift` | Builds `Resources/AppIcon.icns` from the same layers with `iconutil`; `make-app.sh` uses it when Xcode's `actool` is missing |
 
 ## Build and run
 
@@ -51,7 +51,7 @@ The icon starts about 300 pt from the right edge, so it doesn't land behind the 
 
 ### Below the minimum (sub-zero) and above 100 % (XDR)
 
-The built-in slider covers an extended range, as Lunar does (paid features there, reimplemented here):
+The built-in slider covers an extended range:
 
 | Range | What happens |
 |---|---|
@@ -61,7 +61,7 @@ The built-in slider covers an extended range, as Lunar does (paid features there
 
 - **Bottom of the range = black**: at the minimum (0 without sub-zero, −100 with it), the native value is sent as an exact 0, which switches the backlight off, as on macOS. Every level above it stays lit.
 - **Toggles**: the "Sous zéro" (on by default) and "XDR" (off by default) checkboxes under the slider. XDR is greyed out if the screen has no EDR headroom.
-- **No system change.** Unlike Lunar's "Full Range" method (`SLSDisplaySetPresetData`), no display preset is modified. Quitting BrightBar restores gamma and removes the overlay.
+- **No system change.** No display preset is modified. Quitting BrightBar restores gamma and removes the overlay.
 - **XDR costs**: more battery and more heat. macOS may limit the gain when the Mac is hot.
 - **Sub-zero and Night Shift / True Tone**: no conflict on Apple Silicon, since those don't go through the gamma table. f.lux, which uses gamma, would conflict.
 - **Auto modes**: they drive the native backlight and leave the sub-zero/XDR range. A manual change into sub-zero or XDR pauses them, as usual.
@@ -77,8 +77,8 @@ The **Manual / Schedule / Sensor** picker sits under the slider. A status line s
 
 - **Manual change** (slider, F1/F2, Control Center): pauses the auto mode until the next schedule point, or for 30 minutes in sensor mode. "Resume" restarts it immediately.
 - **External monitors**: they follow if "Follow the MacBook brightness" is on. When the lid is closed, the auto mode drives them directly.
-- **macOS "Automatically adjust brightness"**: if it is on, the panel shows a warning, because it would fight the auto mode. Detection uses `DisplayServicesAmbientLightCompensationEnabled(id, &bool)`; the result comes back through the out-parameter, as Lunar calls it.
-- **Light sensor**: read like Lunar does, through `IOHIDEventSystemClient` (usage 0xff00/4), the ambient-light event (type 12), and `IOHIDEventGetFloatValue` on field `12 << 16`.
+- **macOS "Automatically adjust brightness"**: if it is on, the panel shows a warning, because it would fight the auto mode. Detection uses `DisplayServicesAmbientLightCompensationEnabled(id, &bool)`; the result comes back through the out-parameter.
+- **Light sensor**: read through `IOHIDEventSystemClient` (usage 0xff00/4), the ambient-light event (type 12), and `IOHIDEventGetFloatValue` on field `12 << 16`.
 
 ### External monitors (DDC/CI)
 
@@ -86,7 +86,7 @@ The **External displays** section only appears when a monitor is connected. Each
 
 - **"Follow the MacBook brightness (F1/F2)"**: copies the built-in brightness to every monitor. Use it when the brightness keys should drive the external monitors too. The setting is saved.
 - **Software fallback (`logiciel` badge)**: used when the monitor doesn't answer over DDC.
-  The picture is darkened through the gamma table (`CGSetDisplayTransferByTable`), as Lunar's "Software" control does.
+  The picture is darkened through the gamma table (`CGSetDisplayTransferByTable`).
   - The backlight doesn't change, so this only darkens. For more light, set the monitor to its maximum in its OSD menu.
   - 0 % applies a 10 % floor so the screen never goes fully black.
   - The level is saved per monitor (vendor:model:serial).
@@ -99,7 +99,7 @@ DDC reads return only null messages (`6E 80 BE`), and writes are acknowledged bu
 The gamma fallback takes over.
 A USB-C → DisplayPort cable usually gets DDC working.
 
-| Step | Detail (same as Lunar) |
+| Step | Detail |
 |---|---|
 | Port | `DCPAVServiceProxy` with `Location = External` → `IOAVServiceCreateWithService` |
 | Monitor matching | EDID (`IOAVServiceCopyEDID`) vendor/product/serial vs `CGDisplayVendorNumber`/`ModelNumber`/`SerialNumber`; with a single monitor and an unreadable EDID, the leftover port is used |
@@ -113,7 +113,7 @@ Limit: two identical monitors with no EDID serial number may be swapped.
 
 ### Brightness keys
 
-BrightBar intercepts F1/F2 before macOS does, as Lunar does with `MediaKeyTap`.
+BrightBar intercepts F1/F2 before macOS does.
 It uses a session event tap on `NSSystemDefined` events, subtype 8, with `NX_KEYTYPE_BRIGHTNESS_UP/DOWN` = 2/3.
 The keys are swallowed, so the macOS indicator no longer shows. BrightBar applies the change and shows **its own indicator** at the top right for 1.5 s.
 
@@ -142,7 +142,7 @@ BrightBar defines no other shortcuts: the earlier ⌃⌥ ones collided with Magn
 System Settings → Control Center → **Display** → *Don't Show in Menu Bar*.
 BrightBar then takes its place.
 
-| Toggle | Private API (same as Lunar, except True Tone) |
+| Toggle | Private API |
 |---|---|
 | Dark Mode | SkyLight `SLSGetAppearanceThemeLegacy` / `SLSSetAppearanceThemeLegacy`; change notification `AppleInterfaceThemeChangedNotification` |
 | Night Shift | CoreBrightness `CBBlueLightClient` `getBlueLightStatus:` / `setEnabled:` / `setStatusNotificationBlock:` |
@@ -173,12 +173,12 @@ brightness [--method ds|cd] <command>
 ```
 
 `--method` forces DisplayServices (`ds`) or CoreDisplay (`cd`).
-If you leave it out, the tool picks the method as Lunar does.
+If you leave it out, the tool picks the method automatically (see below).
 
 ## How it works
 
 - Symbols are resolved at runtime with `dlopen`/`dlsym`. Nothing links against private frameworks.
-- Method selection mirrors Lunar's `AppleNativeControl`:
+- Method selection:
   1. If `DisplayServicesCanChangeBrightness(id)` returns true, use DisplayServices.
   2. Otherwise run a write-probe: read the value, write it ±0.01, read it back, then restore it.
   3. If DisplayServices fails, run the same probe on CoreDisplay.
@@ -187,7 +187,7 @@ If you leave it out, the tool picks the method as Lunar does.
   `DisplayServicesGetBrightness` already returns the target during that time.
   A write issued before the animation ends is overwritten by it.
 - Change notifications use `DisplayServicesRegisterForBrightnessChangeNotifications(id, observer, callback)`.
-  Lunar passes the display id as the observer pointer, and so does this tool.
+  The display id is passed as the observer pointer.
   The callback's `userInfo` is `{ value = <0.0…1.0> }`.
   A native smooth transition produces one notification, carrying the final value.
 

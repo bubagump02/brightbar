@@ -22,7 +22,7 @@ public struct NativeAPI: @unchecked Sendable {
     var dsSetSmooth: DSSet?
     // macOS "Automatically adjust brightness" (ambient light compensation).
     var dsHasALC: DSCanChange?
-    // Result through the out-parameter (as Lunar calls it), not the return value.
+    // Result through the out-parameter, not the return value.
     var dsALCEnabled: DSGetBool?
     var dsRegister: DSRegister?
     var dsUnregister: DSUnregister?

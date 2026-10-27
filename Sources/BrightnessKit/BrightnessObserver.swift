@@ -1,5 +1,5 @@
 // Notifies when the built-in brightness changes from outside (brightness keys,
-// Control Center, ambient light). Same mechanism as Lunar:
+// Control Center, ambient light). Mechanism:
 // DisplayServicesRegisterForBrightnessChangeNotifications(id, observer: id, cb).
 
 import CoreFoundation
@@ -11,7 +11,7 @@ public final class BrightnessObserver: @unchecked Sendable {
     let api: NativeAPI
     let onChange: (Float) -> Void
 
-    // The C callback cannot capture context; Lunar passes the display id as the
+    // The C callback cannot capture context; The display id is passed as the
     // observer pointer, so route callbacks back through this table.
     nonisolated(unsafe) static var observers: [CGDirectDisplayID: BrightnessObserver] = [:]
 

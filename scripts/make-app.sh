@@ -17,7 +17,10 @@ if xcrun --find actool >/dev/null 2>&1; then
         --platform macosx --minimum-deployment-target 14.0 --app-icon AppIcon \
         --output-partial-info-plist build/icon-info.plist >/dev/null
 else
-    echo "note: no actool (Xcode not selected), building without an app icon"
+    # No Xcode: use the prebuilt icns. Regenerate it with:
+    #   swift scripts/make-icns.swift Resources/AppIcon.icon Resources/AppIcon.icns
+    echo "note: no actool (Xcode not selected), using Resources/AppIcon.icns"
+    cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 fi
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'

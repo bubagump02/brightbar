@@ -1,5 +1,4 @@
-// Brightness above 100 % on XDR panels, the way Lunar's HDRWindow and similar
-// tools do it: a click-through full-screen window whose Metal layer shows an
+// Brightness above 100 % on XDR panels: a click-through full-screen window whose Metal layer shows an
 // extended-range color (> 1.0) with a multiply blend. macOS raises the
 // backlight to render that EDR content and the multiply brightens the whole
 // picture. Nothing in the system configuration changes; quitting removes it.

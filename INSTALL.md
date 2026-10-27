@@ -6,7 +6,7 @@ BrightBar is built from source. There is no prebuilt download.
 
 - macOS 14 or later (developed on macOS 26, Apple Silicon).
 - Xcode Command Line Tools with Swift 5.9 or later: `xcode-select --install`.
-- Optional: full Xcode, selected with `xcode-select`. It provides `actool`, which compiles the app icon. Without it the app builds fine, with the default icon.
+- Optional: full Xcode, selected with `xcode-select`. Its `actool` compiles the Liquid Glass app icon. Without Xcode the build uses the prebuilt `Resources/AppIcon.icns`, so the icon shows in Finder and the Applications folder either way.
 - Apple Silicon for external monitor control over DDC/CI. On Intel Macs the built-in display, the sub-zero range and the gamma fallback still work.
 
 ## Install
@@ -74,7 +74,8 @@ Quitting BrightBar restores gamma and removes the XDR overlay, and the app makes
 | Symptom | Fix |
 |---|---|
 | `swift: command not found` | Install the Command Line Tools: `xcode-select --install`. |
-| `no actool` note during the build | Harmless. Select full Xcode with `xcode-select -s` to get the app icon. |
+| `no actool` note during the build | Harmless. The build falls back to `Resources/AppIcon.icns`. Select full Xcode with `xcode-select -s` to get the Liquid Glass icon on macOS 26. |
+| App icon is blank in the Applications folder | Run `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/BrightBar.app`, then relaunch Finder (`killall Finder`). |
 | Brightness keys do nothing | Grant Accessibility (see First launch). After a rebuild with ad hoc signing, remove BrightBar from the list and add it again. |
 | External monitor slider shows a `logiciel` badge | The monitor does not answer over DDC, so BrightBar dims in software. A USB-C → DisplayPort cable usually gets DDC working. |
 | XDR checkbox is greyed out | The screen has no EDR headroom. XDR needs a MacBook Pro with a mini-LED display. |

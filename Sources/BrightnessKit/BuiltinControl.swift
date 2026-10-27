@@ -1,4 +1,4 @@
-// Built-in panel brightness, mirroring Lunar's AppleNativeControl:
+// Built-in panel brightness:
 // DisplayServices first, CoreDisplay as fallback, values in 0.0...1.0.
 
 import CoreGraphics
@@ -21,7 +21,7 @@ public struct BuiltinControl: Sendable {
         self.api = api
     }
 
-    /// Same order as Lunar: DisplayServices first, CoreDisplay as fallback.
+    /// DisplayServices first, CoreDisplay as fallback.
     static func pick(id: CGDirectDisplayID, api: NativeAPI, forced: BrightnessMethod?) -> BrightnessMethod? {
         switch forced {
         case .displayServices?: return supports(.displayServices, id: id, api: api) ? .displayServices : nil
@@ -32,7 +32,7 @@ public struct BuiltinControl: Sendable {
         }
     }
 
-    /// Lunar's availability check: trust DisplayServicesCanChangeBrightness, else
+    /// Availability check: trust DisplayServicesCanChangeBrightness, else
     /// write current ±0.01, read it back, restore. On macOS 26 CoreDisplay's
     /// user-brightness setter is a no-op on the built-in panel, so the probe matters.
     public static func supports(_ m: BrightnessMethod, id: CGDirectDisplayID, api: NativeAPI = .shared) -> Bool {
@@ -103,8 +103,7 @@ public struct BuiltinControl: Sendable {
 
     /// No duration: native animated transition (system-timed, blocks until it
     /// settles). With a duration, or without DisplayServicesSetBrightnessSmooth:
-    /// manual stepped loop (Lunar's "slow" path uses 0.002 per step; a coarser
-    /// step keeps it short).
+    /// manual stepped loop (a coarse step keeps it short).
     public func smooth(to target: Float, duration: Double?) -> Bool {
         let target = min(max(target, 0), 1)
         guard let current = get() else { return false }

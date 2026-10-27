@@ -1,5 +1,5 @@
-// The other toggles of macOS's Display module, through the same private APIs
-// Lunar uses: SkyLight for Dark Mode, CoreBrightness for Night Shift and
+// The other toggles of macOS's Display module, through private APIs:
+// SkyLight for Dark Mode, CoreBrightness for Night Shift and
 // True Tone. Everything is resolved at runtime and degrades to "unsupported".
 
 import Darwin
