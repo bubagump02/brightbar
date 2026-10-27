@@ -13,7 +13,7 @@ New here? Follow the [installation guide](INSTALL.md).
 | `Sources/BrightBar` | SwiftUI `MenuBarExtra` app |
 | `Sources/brightness` | CLI |
 | `scripts/make-app.sh` | Builds `build/BrightBar.app`, signed with "BrightBar Local", menu bar only |
-| `scripts/install.sh` | Builds, installs `/Applications/BrightBar.app` and relaunches it from there |
+| `scripts/install.sh` | Builds, installs `/Applications/BrightBar.app` (`~/Applications` without admin rights) and relaunches it from there |
 | `scripts/make-icon.swift` | Draws `Resources/AppIcon.icon` (Icon Composer bundle); `make-app.sh` compiles it with Xcode's `actool` |
 | `scripts/make-icns.swift` | Builds `Resources/AppIcon.icns` from the same layers with `iconutil`; `make-app.sh` uses it when Xcode's `actool` is missing |
 
@@ -25,7 +25,7 @@ Install, or update after a code change:
 ./scripts/install.sh
 ```
 
-The script quits the running copy, replaces `/Applications/BrightBar.app` and relaunches it.
+The script quits the running copy, replaces `/Applications/BrightBar.app` (or `~/Applications/BrightBar.app` when `/Applications` is not writable) and relaunches it.
 
 **Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications` or `~/Applications`. The "Open at login" checkbox in the settings window (⚙︎ button in the panel) turns it on or off, and it also shows up in System Settings → General → Login Items.
 

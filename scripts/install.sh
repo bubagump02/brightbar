@@ -1,12 +1,22 @@
 #!/bin/sh
-# Build BrightBar and install it to /Applications, then (re)launch it from
-# there. The login item points at the installed copy, so it survives rebuilds.
+# Build BrightBar and install it to /Applications (~/Applications without admin
+# rights), then (re)launch it from there. The login item points at the
+# installed copy, so it survives rebuilds.
 set -eu
 
 cd "$(dirname "$0")/.."
 ./scripts/make-app.sh
 
-DEST=/Applications/BrightBar.app
+# Decide before quitting the running copy, so a failed copy can't leave the
+# Mac without BrightBar.
+if [ -w /Applications ]; then
+    DIR=/Applications
+else
+    DIR="$HOME/Applications"
+    mkdir -p "$DIR"
+    echo "note: /Applications is not writable, installing to $DIR"
+fi
+DEST="$DIR/BrightBar.app"
 pkill -x BrightBar 2>/dev/null && sleep 0.5 || true
 rm -rf "$DEST"
 cp -R build/BrightBar.app "$DEST"
