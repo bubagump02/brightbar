@@ -17,21 +17,11 @@ cd brightbar
 ./scripts/install.sh
 ```
 
-The script builds a release binary, wraps it in `build/BrightBar.app`, signs it, copies it to `/Applications/BrightBar.app` and launches it. A sun icon appears in the menu bar, about 300 pt from the right edge. ⌘-drag it to move it.
+The script builds a release binary, wraps it in `build/BrightBar.app`, signs it, copies it to `/Applications/BrightBar.app` and launches it. Without admin rights, when `/Applications` is not writable, it installs to `~/Applications/BrightBar.app` instead and says so. A sun icon appears in the menu bar, about 300 pt from the right edge. ⌘-drag it to move it.
 
 The first build takes about a minute. Linker warnings about missing `CommandLineTools/Developer` search paths are harmless.
 
-### If `/Applications` is not writable
-
-Build only, then copy the app where you want it:
-
-```bash
-./scripts/make-app.sh
-cp -R build/BrightBar.app ~/Applications/
-open ~/Applications/BrightBar.app
-```
-
-The "open at login" option is registered automatically on the first launch from `/Applications` or `~/Applications`. From any other folder it is greyed out.
+To install somewhere else, build only (`./scripts/make-app.sh`) and copy `build/BrightBar.app` yourself. The "open at login" option is registered automatically on the first launch from `/Applications` or `~/Applications`. From any other folder it is greyed out.
 
 ## First launch
 
@@ -67,7 +57,7 @@ See the README for the list of commands.
 ## Uninstall
 
 1. Quit BrightBar from the settings window (⚙︎), or press ⌘Q while the panel is open.
-2. Delete `/Applications/BrightBar.app` (or the copy you made).
+2. Delete `/Applications/BrightBar.app`, or `~/Applications/BrightBar.app` (or the copy you made).
 3. Remove BrightBar from System Settings → Privacy & Security → Accessibility, and from General → Login Items.
 4. Optional, to delete the saved settings: `defaults delete local.brightbar`.
 
