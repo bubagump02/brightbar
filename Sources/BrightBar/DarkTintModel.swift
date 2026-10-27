@@ -50,8 +50,8 @@ final class DarkTintModel: ObservableObject {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
-                dark = Appearance.isDark
-                update(animated: true)
+                self.dark = Appearance.isDark
+                self.update(animated: true)
             }
         }
         update(animated: false)
