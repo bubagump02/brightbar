@@ -4,6 +4,8 @@ A menu bar app and CLI that read and set the MacBook built-in display brightness
 They call the private DisplayServices API first and fall back to CoreDisplay.
 See [LUNAR_BRIGHTNESS_RE.md](LUNAR_BRIGHTNESS_RE.md) for the reverse-engineering notes.
 
+New here? Follow the [installation guide](INSTALL.md).
+
 ## Layout
 
 | Path | What |
