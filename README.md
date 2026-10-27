@@ -27,7 +27,7 @@ Install, or update after a code change:
 
 The script quits the running copy, replaces `/Applications/BrightBar.app` and relaunches it.
 
-**Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications`. The "Ouvrir à l'ouverture de session" checkbox in the settings window (⚙︎ button in the panel) turns it on or off, and it also shows up in System Settings → General → Login Items.
+**Open at login.** The app registers itself as a login item through `SMAppService.mainApp`. This happens automatically on the first launch from `/Applications` or `~/Applications`. The "Open at login" checkbox in the settings window (⚙︎ button in the panel) turns it on or off, and it also shows up in System Settings → General → Login Items.
 
 The login item points at the installed copy, so it is greyed out when the app runs from `build/`.
 
@@ -37,6 +37,10 @@ CLI only:
 swift build -c release --product brightness
 ```
 
+## Language
+
+The interface is in US English by default. It switches to French when French is the first language of the Mac that the app supports. The translations live in `Resources/<language>.lproj/Localizable.strings`: the English text is the key and a missing key shows English. To add a language, add its file and its code to `CFBundleLocalizations` in `scripts/make-app.sh`.
+
 ## App
 
 A sun icon sits in the menu bar. Click it to open the panel. The panel replaces the Display module of Control Center:
@@ -44,8 +48,8 @@ A sun icon sits in the menu bar. Click it to open the panel. The panel replaces 
 - **Header**: the display name. Click it to open Displays settings.
 - **Slider**: sets the brightness immediately while you drag.
 - **Dark Mode / Night Shift / True Tone**: round toggles, as in Control Center. Their state follows changes made elsewhere: System Settings, the Night Shift schedule, Control Center. **⌃⌥⌘D** toggles Dark Mode from anywhere.
-- **Clavier**: keyboard backlight slider (0 = off), as in Control Center's Keyboard Brightness module. It follows changes made elsewhere. Hidden on Macs without a backlit keyboard. To have BrightBar replace the macOS module: System Settings → Control Center → **Keyboard Brightness** → *Don't Show in Menu Bar* (and leave it out of Control Center).
-- **Settings (⚙︎)**: the "Réglages BrightBar" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
+- **Keyboard**: keyboard backlight slider (0 = off), as in Control Center's Keyboard Brightness module. It follows changes made elsewhere. Hidden on Macs without a backlit keyboard. To have BrightBar replace the macOS module: System Settings → Control Center → **Keyboard Brightness** → *Don't Show in Menu Bar* (and leave it out of Control Center).
+- **Settings (⚙︎)**: the "BrightBar Settings" window holds open-at-login, Quit (⌘Q also works while the panel is open), the schedule and the sensor. The brightness API in use is shown by `brightness info`.
 
 The icon starts about 300 pt from the right edge, so it doesn't land behind the notch. ⌘-drag it to move it.
 
@@ -55,12 +59,12 @@ The built-in slider covers an extended range:
 
 | Range | What happens |
 |---|---|
-| −100 … 0 (**Sous zéro**) | Native backlight at its **lowest lit value**. On this panel an exact 0 switches the backlight off (linear brightness 0.0000, while 0.00001 still gives 0.0048), so BrightBar never sends less than 0.001. The picture is darkened through the gamma table. The curve is exponential in **perceived luminance**, from 100 % down to 0.1 % of the native minimum: −25 → 18 %, −50 → 3.2 %, −75 → 0.56 %, −100 → 0.1 %. It is converted back to a gamma factor with `^(1/2.2)`, because the table acts on the encoded signal. With the keys, this range has its own finer resolution: 32 steps (64 with ⌥⇧), about −19 % of light per step. |
+| −100 … 0 (**Sub-zero**) | Native backlight at its **lowest lit value**. On this panel an exact 0 switches the backlight off (linear brightness 0.0000, while 0.00001 still gives 0.0048), so BrightBar never sends less than 0.001. The picture is darkened through the gamma table. The curve is exponential in **perceived luminance**, from 100 % down to 0.1 % of the native minimum: −25 → 18 %, −50 → 3.2 %, −75 → 0.56 %, −100 → 0.1 %. It is converted back to a gamma factor with `^(1/2.2)`, because the table acts on the encoded signal. With the keys, this range has its own finer resolution: 32 steps (64 with ⌥⇧), about −19 % of light per step. |
 | 0 … 100 | Native backlight only (DisplayServices). |
 | 100 … 200 (**XDR**) | Native backlight at 100, plus a click-through full-screen window whose Metal layer (`rgba16Float`, `extendedLinearSRGB`, `wantsExtendedDynamicRangeContent`, `compositingFilter = multiplyBlendMode`) shows a color > 1.0. macOS raises the backlight to render that EDR content, and the multiply brightens everything. Measured headroom on a 14" M1 Pro: **3.2×**, i.e. 1600 / 500 nits. |
 
 - **Bottom of the range = black**: at the minimum (0 without sub-zero, −100 with it), the native value is sent as an exact 0, which switches the backlight off, as on macOS. Every level above it stays lit.
-- **Toggles**: the "Sous zéro" (on by default) and "XDR" (off by default) checkboxes under the slider. XDR is greyed out if the screen has no EDR headroom.
+- **Toggles**: the "Sub-zero" (on by default) and "XDR" (off by default) checkboxes under the slider. XDR is greyed out if the screen has no EDR headroom.
 - **No system change.** No display preset is modified. Quitting BrightBar restores gamma and removes the overlay.
 - **XDR costs**: more battery and more heat. macOS may limit the gain when the Mac is hot.
 - **Sub-zero and Night Shift / True Tone**: no conflict on Apple Silicon, since those don't go through the gamma table. f.lux, which uses gamma, would conflict.
@@ -68,7 +72,7 @@ The built-in slider covers an extended range:
 
 ### Auto mode
 
-The **Manual / Schedule / Sensor** picker sits under the slider. A status line shows the target. The ⚙︎ button opens the "Réglages BrightBar" window.
+The **Manual / Schedule / Sensor** picker sits under the slider. A status line shows the target. The ⚙︎ button opens the "BrightBar Settings" window.
 
 | Mode | Behaviour |
 |---|---|
@@ -85,7 +89,7 @@ The **Manual / Schedule / Sensor** picker sits under the slider. A status line s
 The **External displays** section only appears when a monitor is connected. Each monitor gets its own slider.
 
 - **"Follow the MacBook brightness (F1/F2)"**: copies the built-in brightness to every monitor. Use it when the brightness keys should drive the external monitors too. The setting is saved.
-- **Software fallback (`logiciel` badge)**: used when the monitor doesn't answer over DDC.
+- **Software fallback (`software` badge)**: used when the monitor doesn't answer over DDC.
   The picture is darkened through the gamma table (`CGSetDisplayTransferByTable`).
   - The backlight doesn't change, so this only darkens. For more light, set the monitor to its maximum in its OSD menu.
   - 0 % applies a 10 % floor so the screen never goes fully black.
@@ -124,12 +128,12 @@ The keys are swallowed, so the macOS indicator no longer shows. BrightBar applie
 - **Auto mode**: a key press counts as a manual change, so the auto mode pauses.
 - **Permission**: needs **Accessibility** (System Settings → Privacy & Security → Accessibility → BrightBar).
   - macOS asks once at first launch.
-  - Without the permission, the keys stay with macOS. The panel then shows an "Autoriser…" button.
+  - Without the permission, the keys stay with macOS. The panel then shows an "Allow…" button.
   - `make-app.sh` signs with the local self-signed identity **"BrightBar Local"** (login keychain, code-signing usage). The designated requirement is then `identifier "local.brightbar" and certificate leaf = H"…"`, which is stable, so the permission survives rebuilds.
   - Without that identity, the script signs ad hoc. The requirement is then the cdhash, which changes with every build, so macOS forgets the permission each time.
   - To recreate the identity: generate a self-signed certificate with EKU `codeSigning`, export it as a legacy PKCS#12 (`-certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1`, which OpenSSL ≥ 3 needs), then `security import … -T /usr/bin/codesign`.
 
-**Keyboard backlight: ⌃F1 / ⌃F2**, and the illumination keys on Macs that have them (`NX_KEYTYPE_ILLUMINATION_UP/DOWN` = 21/22). Same tap, 10 % steps (⌃⌥⇧: 5 %), BrightBar's indicator labelled "Clavier" instead of the macOS one. The 14"/16" Apple Silicon MacBook Pros have no illumination keys, hence ⌃F1/⌃F2.
+**Keyboard backlight: ⌃F1 / ⌃F2**, and the illumination keys on Macs that have them (`NX_KEYTYPE_ILLUMINATION_UP/DOWN` = 21/22). Same tap, 10 % steps (⌃⌥⇧: 5 %), BrightBar's indicator labelled "Keyboard" instead of the macOS one. The 14"/16" Apple Silicon MacBook Pros have no illumination keys, hence ⌃F1/⌃F2.
 - Free on a default setup: macOS binds ⌃F1 (keyboard access) and ⌃F2 (menu bar focus) only with fn, i.e. on the real F-keys, and ⌃ + brightness is otherwise only used for Apple external displays, which BrightBar already drives through the pointer.
 - Without a keyboard backlight, ⌃F1/⌃F2 go to macOS untouched.
 

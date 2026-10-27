@@ -25,7 +25,7 @@ struct AutoSection: View {
                     Image(systemName: "slider.horizontal.3")
                 }
                 .buttonStyle(.borderless)
-                .help("Réglages : horaires, capteur, ouverture de session, quitter")
+                .help("Settings: schedule, sensor, open at login, quit")
             }
 
             if let line = statusLine {
@@ -36,7 +36,7 @@ struct AutoSection: View {
                         .contentTransition(.numericText())
                         .animation(.snappy, value: line)
                     if auto.pausedUntil != nil {
-                        Button("Reprendre", action: auto.resume)
+                        Button("Resume", action: auto.resume)
                             .buttonStyle(.link)
                             .font(.caption)
                     }
@@ -44,7 +44,7 @@ struct AutoSection: View {
             }
 
             if auto.mode != .manual, systemAutoBrightness {
-                Text("Désactive « Régler automatiquement la luminosité » dans Réglages › Moniteurs, sinon macOS et BrightBar se contredisent.")
+                Text("Turn off “Automatically adjust brightness” in System Settings › Displays, otherwise macOS and BrightBar fight each other.")
                     .font(.caption2)
                     .foregroundStyle(.orange)
                     .fixedSize(horizontal: false, vertical: true)
@@ -54,21 +54,21 @@ struct AutoSection: View {
 
     private var statusLine: String? {
         if let until = auto.pausedUntil {
-            return "En pause (réglage manuel) jusqu'à \(until.formatted(date: .omitted, time: .shortened))"
+            return L("Paused (manual change) until %@", until.formatted(date: .omitted, time: .shortened))
         }
         switch auto.mode {
         case .manual:
             return nil
         case .schedule:
             guard let t = auto.target else { return nil }
-            var s = "Cible \(Int(t)) %"
+            var s = L("Target %lld %%", Int(t))
             if let next = auto.nextPoint {
                 s += " · \(next.date.formatted(date: .omitted, time: .shortened)) → \(Int(next.point.brightness)) %"
             }
             return s
         case .sensor:
-            guard auto.sensorAvailable else { return "Pas de capteur de lumière" }
-            guard let lux = auto.lux, let t = auto.target else { return "Capteur sans mesure (capot fermé ?)" }
+            guard auto.sensorAvailable else { return L("No light sensor") }
+            guard let lux = auto.lux, let t = auto.target else { return L("Sensor has no reading (lid closed?)") }
             return "\(Int(lux.rounded())) lux → \(Int(t)) %"
         }
     }
@@ -81,25 +81,25 @@ struct AutoSettingsView: View {
 
     var body: some View {
         Form {
-            Section("Général") {
-                Toggle("Ouvrir à l'ouverture de session", isOn: Binding(get: { login.enabled }, set: { login.set($0) }))
+            Section("General") {
+                Toggle("Open at login", isOn: Binding(get: { login.enabled }, set: { login.set($0) }))
                     .disabled(!login.isInstalled)
                 if !login.isInstalled {
-                    Text("Installe l'app dans Applications (scripts/install.sh) pour l'activer.")
+                    Text("Install the app in Applications (scripts/install.sh) to enable it.")
                         .font(.caption).foregroundStyle(.secondary)
                 } else if login.needsApproval {
-                    Button("Autoriser dans Éléments de connexion…", action: LaunchAtLogin.openLoginItemsSettings)
+                    Button("Allow in Login Items…", action: LaunchAtLogin.openLoginItemsSettings)
                         .buttonStyle(.link).font(.caption)
                 } else if let error = login.error {
                     Text(error).font(.caption).foregroundStyle(.orange)
                 }
                 HStack {
                     Spacer()
-                    Button("Quitter BrightBar") { NSApplication.shared.terminate(nil) }
+                    Button("Quit BrightBar") { NSApplication.shared.terminate(nil) }
                 }
             }
 
-            Section("Horaires") {
+            Section("Schedule") {
                 ScheduleChart(points: auto.points)
                     .frame(height: 120)
                 ForEach(auto.points.sorted { $0.minute < $1.minute }) { point in
@@ -121,34 +121,34 @@ struct AutoSettingsView: View {
                     }
                 }
                 HStack {
-                    Button("Ajouter un point") {
+                    Button("Add a point") {
                         auto.points.append(SchedulePoint(hour: 12, brightness: 80))
                     }
                     Spacer()
-                    Button("Valeurs par défaut", action: auto.resetSchedule)
+                    Button("Reset to defaults", action: auto.resetSchedule)
                 }
-                Text("La luminosité varie en ligne droite d'un point au suivant. Un réglage manuel met le mode en pause jusqu'au point suivant.")
+                Text("Brightness changes in a straight line from one point to the next. A manual change pauses the mode until the next point.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
-            Section("Capteur de lumière") {
+            Section("Light sensor") {
                 if auto.sensorAvailable {
                     HStack {
-                        Text("Plus sombre")
+                        Text("Darker")
                         Slider(value: $auto.luxOffset, in: -30...30, step: 1)
-                        Text("Plus clair")
+                        Text("Brighter")
                     }
                     if let lux = auto.lux {
-                        Text("Maintenant : \(Int(lux.rounded())) lux → \(Int(LuxCurve.brightness(lux: lux, offset: auto.luxOffset))) %")
+                        Text(L("Now: %lld lux → %lld %%", Int(lux.rounded()), Int(LuxCurve.brightness(lux: lux, offset: auto.luxOffset))))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    Text("Repères : pièce sombre ≈ 10 lux, bureau ≈ 300 lux, près d'une fenêtre ≈ 2 000 lux. Un réglage manuel met le mode en pause 30 minutes.")
+                    Text("Reference points: dark room ≈ 10 lux, office ≈ 300 lux, near a window ≈ 2,000 lux. A manual change pauses the mode for 30 minutes.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("Ce Mac n'a pas de capteur de lumière ambiante.")
+                    Text("This Mac has no ambient light sensor.")
                         .foregroundStyle(.secondary)
                 }
             }
@@ -199,12 +199,12 @@ struct ScheduleChart: View {
 
         Chart {
             ForEach(samples, id: \.hour) { s in
-                AreaMark(x: .value("Heure", s.hour), y: .value("Luminosité", s.value))
+                AreaMark(x: .value("Hour", s.hour), y: .value("Brightness", s.value))
                     .foregroundStyle(Color.accentColor.opacity(0.15))
-                LineMark(x: .value("Heure", s.hour), y: .value("Luminosité", s.value))
+                LineMark(x: .value("Hour", s.hour), y: .value("Brightness", s.value))
                     .foregroundStyle(Color.accentColor)
             }
-            RuleMark(x: .value("Maintenant", now))
+            RuleMark(x: .value("Now", now))
                 .foregroundStyle(.secondary)
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [3, 3]))
         }
@@ -213,7 +213,7 @@ struct ScheduleChart: View {
         .chartXAxis {
             AxisMarks(values: [0, 6, 12, 18, 24]) { v in
                 AxisGridLine()
-                AxisValueLabel { Text("\(v.as(Int.self) ?? 0) h") }
+                AxisValueLabel { Text(L("%lld:00", v.as(Int.self) ?? 0)) }
             }
         }
         .chartYAxis {

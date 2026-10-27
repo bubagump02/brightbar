@@ -66,7 +66,7 @@ enum MenuBarIcon {
             return true
         }
         image.isTemplate = true
-        image.accessibilityDescription = "Luminosité"
+        image.accessibilityDescription = L("Brightness")
         return image
     }
 }

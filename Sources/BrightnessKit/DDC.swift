@@ -203,5 +203,6 @@ private func externalAVPorts() -> [AVPort] {
 private func displayName(_ id: CGDirectDisplayID) -> String {
     // NSScreen lives in AppKit; IODisplayCreateInfoDictionary is gone on Apple
     // Silicon, so fall back to vendor/model numbers.
-    "Écran \(String(format: "%04X:%04X", CGDisplayVendorNumber(id), CGDisplayModelNumber(id)))"
+    String(format: NSLocalizedString("Display %@", comment: ""),
+           String(format: "%04X:%04X", CGDisplayVendorNumber(id), CGDisplayModelNumber(id)))
 }

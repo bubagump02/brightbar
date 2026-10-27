@@ -23,12 +23,18 @@ else
     cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 fi
 
+# Localizations: English is the source language and the default; French is
+# used when it is the first language of the Mac that matches.
+cp -R Resources/*.lproj "$APP/Contents/Resources/"
+
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key><string>BrightBar</string>
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
+    <key>CFBundleLocalizations</key><array><string>en</string><string>fr</string></array>
     <key>CFBundleIdentifier</key><string>local.brightbar</string>
     <key>CFBundleExecutable</key><string>BrightBar</string>
     <key>CFBundleIconFile</key><string>AppIcon</string>

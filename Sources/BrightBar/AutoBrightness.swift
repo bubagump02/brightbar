@@ -12,9 +12,9 @@ final class AutoBrightness: ObservableObject {
         var id: String { rawValue }
         var title: String {
             switch self {
-            case .manual: "Manuel"
-            case .schedule: "Horaires"
-            case .sensor: "Capteur"
+            case .manual: L("Manual")
+            case .schedule: L("Schedule")
+            case .sensor: L("Sensor")
             }
         }
     }

@@ -42,7 +42,7 @@ struct BrightBarApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window("Réglages BrightBar", id: "auto") {
+        Window("BrightBar Settings", id: "auto") {
             AutoSettingsView(auto: auto, login: login)
         }
         .windowResizability(.contentSize)
@@ -63,7 +63,7 @@ struct MenuView: View {
             Button(action: FeaturesModel.openDisplaySettings) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Moniteur").font(.headline)
+                        Text("Display").font(.headline)
                         Text(model.displayName).font(.callout).foregroundStyle(.secondary)
                     }
                     Spacer()
@@ -75,7 +75,7 @@ struct MenuView: View {
 
             if let status = model.status {
                 Text(status).font(.callout).foregroundStyle(.secondary)
-                Button("Réessayer") { model.connect() }
+                Button("Retry") { model.connect() }
             } else {
                 VStack(alignment: .leading, spacing: 6) {
                     HStack(spacing: 8) {
@@ -92,13 +92,13 @@ struct MenuView: View {
                             .monospacedDigit()
                             .foregroundStyle(model.level < 0 || model.level > 100 ? Color.accentColor : .secondary)
                         Spacer()
-                        Toggle("Sous zéro", isOn: $model.subzeroEnabled)
-                            .help("Descendre sous le minimum de macOS en assombrissant l'image (gamma).")
+                        Toggle("Sub-zero", isOn: $model.subzeroEnabled)
+                            .help("Go below the macOS minimum by darkening the picture (gamma).")
                         Toggle("XDR", isOn: $model.xdrEnabled)
                             .disabled(!model.xdrSupported)
                             .help(model.xdrSupported
-                                  ? "Dépasser 100 % jusqu'au maximum de la dalle XDR. Consomme plus de batterie et chauffe."
-                                  : "Cet écran n'a pas de marge HDR/XDR.")
+                                  ? L("Go above 100 % up to the maximum of the XDR panel. Uses more battery and runs hotter.")
+                                  : L("This display has no HDR/XDR headroom."))
                     }
                     .toggleStyle(.checkbox)
                     .font(.caption)
@@ -110,12 +110,12 @@ struct MenuView: View {
             if !keys.active {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
                     Image(systemName: "keyboard").foregroundStyle(.secondary)
-                    Text("F1/F2 passent par macOS. Autorise BrightBar dans Accessibilité pour afficher son indicateur.")
+                    Text("F1/F2 go through macOS. Allow BrightBar in Accessibility to show its own indicator.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-                Button("Autoriser…") {
+                Button("Allow…") {
                     keys.start(prompt: true)
                     BrightnessKeys.openAccessibilitySettings()
                 }
@@ -124,20 +124,20 @@ struct MenuView: View {
 
             HStack(alignment: .top) {
                 ToggleCircle(
-                    title: "Mode sombre", subtitle: features.darkSubtitle,
+                    title: L("Dark Mode"), subtitle: features.darkSubtitle,
                     symbol: "circle.lefthalf.filled", isOn: features.dark,
                     action: features.toggleDark
                 )
                 .help(DarkModeHotKey.label)
                 ToggleCircle(
-                    title: "Night Shift", subtitle: features.nightShiftSubtitle,
+                    title: L("Night Shift"), subtitle: features.nightShiftSubtitle,
                     symbol: "moon.stars", isOn: features.nightShift?.enabled ?? false,
                     action: features.toggleNightShift
                 )
                 .disabled(features.nightShift == nil)
                 if features.trueToneSupported {
                     ToggleCircle(
-                        title: "True Tone", subtitle: features.trueTone ? "Activé" : "Désactivé",
+                        title: "True Tone", subtitle: features.trueTone ? L("On") : L("Off"),
                         symbol: "sun.max", isOn: features.trueTone,
                         action: features.toggleTrueTone
                     )
@@ -156,7 +156,7 @@ struct MenuView: View {
         }
         .padding(16)
         .frame(width: 320)
-        // No visible Quit button any more (it lives in Réglages BrightBar);
+        // No visible Quit button any more (it lives in BrightBar Settings);
         // keep ⌘Q working while the panel is open.
         .background {
             Button("") { NSApplication.shared.terminate(nil) }
@@ -177,7 +177,7 @@ enum LevelText {
     static func describe(_ level: Double) -> String {
         let n = Int(level.rounded())
         switch level {
-        case ..<0: return "Sous zéro \(n) %"
+        case ..<0: return L("Sub-zero %lld %%", n)
         case ...100: return "\(n) %"
         default: return "XDR \(n) %"
         }
@@ -192,13 +192,13 @@ struct KeyboardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text("Clavier").font(.subheadline.weight(.semibold))
+                Text("Keyboard").font(.subheadline.weight(.semibold))
                 if keys.active {
                     Text("⌃F1 / ⌃F2").font(.caption2).foregroundStyle(.tertiary)
                 }
                 Spacer()
                 if let v = keyboard.value {
-                    Text(v == 0 ? "Éteint" : "\(Int(v.rounded())) %")
+                    Text(v == 0 ? L("Off") : "\(Int(v.rounded())) %")
                         .monospacedDigit().font(.caption).foregroundStyle(.secondary)
                 }
             }
@@ -218,7 +218,7 @@ struct ExternalsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Écrans externes").font(.subheadline.weight(.semibold))
+                Text("External Displays").font(.subheadline.weight(.semibold))
                 if externals.loading { ProgressView().controlSize(.mini) }
             }
             ForEach(externals.items) { item in
@@ -226,12 +226,12 @@ struct ExternalsView: View {
                     HStack {
                         Text(item.name).font(.callout).lineLimit(1)
                         if item.isSoftware {
-                            Text("logiciel")
+                            Text("software")
                                 .font(.caption2)
                                 .padding(.horizontal, 5)
                                 .padding(.vertical, 1)
                                 .background(Capsule().fill(Color.primary.opacity(0.1)))
-                                .help("L'écran ne répond pas en DDC : l'image est assombrie par la table gamma, le rétroéclairage ne change pas.")
+                                .help("The display doesn't respond over DDC: the picture is darkened through the gamma table, the backlight doesn't change.")
                         }
                         Spacer()
                         if let v = item.value {
@@ -245,19 +245,19 @@ struct ExternalsView: View {
                             Image(systemName: "sun.max").foregroundStyle(.secondary)
                         }
                     } else {
-                        Text("Luminosité non réglable sur cet écran")
+                        Text("Brightness can't be adjusted on this display")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     if item.isSoftware {
-                        Text("Sans DDC : assombrit l'image seulement. Pour plus de lumière, règle l'écran au max dans son menu.")
+                        Text("Without DDC: only darkens the picture. For more light, set the display to its maximum in its own menu.")
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }
-            Toggle("Suivre la luminosité du MacBook (F1/F2)", isOn: $externals.followBuiltin)
+            Toggle("Follow the MacBook's brightness (F1/F2)", isOn: $externals.followBuiltin)
                 .font(.caption)
                 .toggleStyle(.switch)
                 .controlSize(.mini)

@@ -46,7 +46,7 @@ final class KeyController {
             let target = next(v, 0, 100)
             keyboard.set(target)
             let screen = NSScreen.screens.first { NSMouseInRect(NSEvent.mouseLocation, $0.frame, false) }
-            hud.show(name: "Clavier", label: "\(Int(target.rounded())) %", fraction: target / 100,
+            hud.show(name: L("Keyboard"), label: "\(Int(target.rounded())) %", fraction: target / 100,
                      badge: nil, symbols: ("light.min", "light.max"), on: screen)
             return true
         }
@@ -60,7 +60,7 @@ final class KeyController {
             let target = next(v, 0, 100)
             externals.set(id, target)
             hud.show(name: item.name, label: "\(Int(target.rounded())) %", fraction: target / 100,
-                     badge: item.isSoftware ? "logiciel" : nil, on: screen)
+                     badge: item.isSoftware ? L("software") : nil, on: screen)
             return true
         }
         guard builtin.isAvailable else { return false }
@@ -68,7 +68,7 @@ final class KeyController {
         builtin.setLevel(target, animated: true, user: true)
         // Bar spans the whole extended range, so sub-zero and XDR stay visible.
         let fraction = (target - builtin.minLevel) / (builtin.maxLevel - builtin.minLevel)
-        let badge = target < 0 ? "sous zéro" : target > 100 ? "XDR" : nil
+        let badge = target < 0 ? L("sub-zero") : target > 100 ? "XDR" : nil
         hud.show(name: builtin.displayName, label: LevelText.describe(target), fraction: fraction,
                  badge: badge, on: builtin.screen)
         return true

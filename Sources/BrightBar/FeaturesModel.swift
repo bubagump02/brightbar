@@ -98,18 +98,18 @@ final class FeaturesModel: ObservableObject {
     }
 
     var darkSubtitle: String {
-        darkAuto ? (dark ? "Activé · Auto" : "Désactivé · Auto") : (dark ? "Activé" : "Désactivé")
+        darkAuto ? (dark ? L("On · Auto") : L("Off · Auto")) : (dark ? L("On") : L("Off"))
     }
 
     var nightShiftSubtitle: String {
-        guard let s = nightShift else { return "Indisponible" }
-        let state = s.enabled ? "Activé" : "Désactivé"
+        guard let s = nightShift else { return L("Unavailable") }
+        let state = s.enabled ? L("On") : L("Off")
         switch s.schedule {
         case .off: return state
-        case .sunsetToSunrise: return state + " · Coucher/lever"
+        case .sunsetToSunrise: return state + " · " + L("Sunset to sunrise")
         case .custom:
             let t = s.enabled ? s.to : s.from
-            return state + String(format: " · jusqu'à %02d:%02d", t.0, t.1)
+            return state + " · " + L("until %@", String(format: "%02d:%02d", t.0, t.1))
         }
     }
 

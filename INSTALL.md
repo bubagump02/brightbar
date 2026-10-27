@@ -31,17 +31,21 @@ cp -R build/BrightBar.app ~/Applications/
 open ~/Applications/BrightBar.app
 ```
 
-The "open at login" option is registered automatically only from `/Applications`. From another folder, tick the checkbox in the settings window instead.
+The "open at login" option is registered automatically on the first launch from `/Applications` or `~/Applications`. From any other folder it is greyed out.
 
 ## First launch
 
-1. **Accessibility.** macOS asks once. It is needed for the brightness keys (F1/F2, ⌃F1/⌃F2). Grant it in System Settings → Privacy & Security → Accessibility → BrightBar. Without it, the keys stay with macOS and the panel shows an "Autoriser…" button.
-2. **Open at login.** On the first launch from `/Applications` the app registers itself as a login item. Toggle it with the "Ouvrir à l'ouverture de session" checkbox in the settings window (⚙︎ button in the panel), or in System Settings → General → Login Items.
+1. **Accessibility.** macOS asks once. It is needed for the brightness keys (F1/F2, ⌃F1/⌃F2). Grant it in System Settings → Privacy & Security → Accessibility → BrightBar. Without it, the keys stay with macOS and the panel shows an "Allow…" button.
+2. **Open at login.** On the first launch from `/Applications` or `~/Applications` the app registers itself as a login item. Toggle it with the "Open at login" checkbox in the settings window (⚙︎ button in the panel), or in System Settings → General → Login Items.
 3. **Replace the macOS modules (optional).** To let BrightBar take the place of Control Center's Display and Keyboard Brightness modules, set both to *Don't Show in Menu Bar* in System Settings → Control Center.
 
 ## Keep the Accessibility permission across rebuilds
 
 Without a stable signing identity the script signs ad hoc, and macOS forgets the Accessibility permission after every rebuild. To avoid it, create a self-signed code-signing certificate named **BrightBar Local** in your login keychain. `make-app.sh` uses it automatically when it exists. The recipe is in the README, section "Brightness keys".
+
+## Language
+
+The interface is in US English. If your Mac's first supported language is French, the app is in French instead (see "Language" in the README).
 
 ## Update
 
@@ -77,6 +81,6 @@ Quitting BrightBar restores gamma and removes the XDR overlay, and the app makes
 | `no actool` note during the build | Harmless. The build falls back to `Resources/AppIcon.icns`. Select full Xcode with `xcode-select -s` to get the Liquid Glass icon on macOS 26. |
 | App icon is blank in the Applications folder | Run `/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/BrightBar.app`, then relaunch Finder (`killall Finder`). |
 | Brightness keys do nothing | Grant Accessibility (see First launch). After a rebuild with ad hoc signing, remove BrightBar from the list and add it again. |
-| External monitor slider shows a `logiciel` badge | The monitor does not answer over DDC, so BrightBar dims in software. A USB-C → DisplayPort cable usually gets DDC working. |
+| External monitor slider shows a `software` badge | The monitor does not answer over DDC, so BrightBar dims in software. A USB-C → DisplayPort cable usually gets DDC working. |
 | XDR checkbox is greyed out | The screen has no EDR headroom. XDR needs a MacBook Pro with a mini-LED display. |
 | Panel warns about "Automatically adjust brightness" | Turn it off in System Settings → Displays, it fights the auto mode. |

@@ -15,7 +15,7 @@ final class BrightnessModel: ObservableObject {
     @Published private(set) var value: Double = 0
     @Published private(set) var level: Double = 0
     @Published private(set) var status: String?
-    @Published private(set) var displayName = "Écran intégré"
+    @Published private(set) var displayName = L("Built-in Display")
 
     @Published var subzeroEnabled: Bool {
         didSet {
@@ -78,17 +78,17 @@ final class BrightnessModel: ObservableObject {
         observer = nil
         guard let id = builtinDisplayID() else {
             control = nil
-            status = "Écran intégré indisponible (capot fermé ?)"
+            status = L("Built-in display unavailable (lid closed?)")
             return
         }
         guard let control = BuiltinControl(id: id) else {
             self.control = nil
-            status = "Aucune API de luminosité utilisable"
+            status = L("No usable brightness API")
             return
         }
         self.control = control
         status = nil
-        displayName = screen?.localizedName ?? "Écran intégré"
+        displayName = screen?.localizedName ?? L("Built-in Display")
         refresh()
         // BrightnessObserver delivers on the main queue.
         observer = BrightnessObserver(id: id) { [weak self] v in

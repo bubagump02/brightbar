@@ -1,0 +1,72 @@
+/* French translation. The English text is the key; missing keys show English. */
+
+/* Windows and headings */
+"BrightBar Settings" = "Réglages BrightBar";
+"Display" = "Moniteur";
+"Display %@" = "Écran %@";
+"Built-in Display" = "Écran intégré";
+"External Displays" = "Écrans externes";
+"Keyboard" = "Clavier";
+"General" = "Général";
+"Schedule" = "Horaires";
+"Light sensor" = "Capteur de lumière";
+
+/* Brightness panel */
+"Retry" = "Réessayer";
+"Sub-zero" = "Sous zéro";
+"Sub-zero %lld %%" = "Sous zéro %lld %%";
+"sub-zero" = "sous zéro";
+"software" = "logiciel";
+"Go below the macOS minimum by darkening the picture (gamma)." = "Descendre sous le minimum de macOS en assombrissant l'image (gamma).";
+"Go above 100 % up to the maximum of the XDR panel. Uses more battery and runs hotter." = "Dépasser 100 % jusqu'au maximum de la dalle XDR. Consomme plus de batterie et chauffe.";
+"This display has no HDR/XDR headroom." = "Cet écran n'a pas de marge HDR/XDR.";
+"Built-in display unavailable (lid closed?)" = "Écran intégré indisponible (capot fermé ?)";
+"No usable brightness API" = "Aucune API de luminosité utilisable";
+"F1/F2 go through macOS. Allow BrightBar in Accessibility to show its own indicator." = "F1/F2 passent par macOS. Autorise BrightBar dans Accessibilité pour afficher son indicateur.";
+"Allow…" = "Autoriser…";
+
+/* Toggles */
+"Dark Mode" = "Mode sombre";
+"Night Shift" = "Night Shift";
+"On" = "Activé";
+"Off" = "Désactivé";
+"On · Auto" = "Activé · Auto";
+"Off · Auto" = "Désactivé · Auto";
+"Unavailable" = "Indisponible";
+"Sunset to sunrise" = "Coucher/lever";
+"until %@" = "jusqu'à %@";
+
+/* External displays */
+"The display doesn't respond over DDC: the picture is darkened through the gamma table, the backlight doesn't change." = "L'écran ne répond pas en DDC : l'image est assombrie par la table gamma, le rétroéclairage ne change pas.";
+"Brightness can't be adjusted on this display" = "Luminosité non réglable sur cet écran";
+"Without DDC: only darkens the picture. For more light, set the display to its maximum in its own menu." = "Sans DDC : assombrit l'image seulement. Pour plus de lumière, règle l'écran au max dans son menu.";
+"Follow the MacBook's brightness (F1/F2)" = "Suivre la luminosité du MacBook (F1/F2)";
+
+/* Auto mode */
+"Manual" = "Manuel";
+"Sensor" = "Capteur";
+"Settings: schedule, sensor, open at login, quit" = "Réglages : horaires, capteur, ouverture de session, quitter";
+"Resume" = "Reprendre";
+"Turn off “Automatically adjust brightness” in System Settings › Displays, otherwise macOS and BrightBar fight each other." = "Désactive « Régler automatiquement la luminosité » dans Réglages › Moniteurs, sinon macOS et BrightBar se contredisent.";
+"Paused (manual change) until %@" = "En pause (réglage manuel) jusqu'à %@";
+"Target %lld %%" = "Cible %lld %%";
+"No light sensor" = "Pas de capteur de lumière";
+"Sensor has no reading (lid closed?)" = "Capteur sans mesure (capot fermé ?)";
+
+/* Settings window */
+"Open at login" = "Ouvrir à l'ouverture de session";
+"Install the app in Applications (scripts/install.sh) to enable it." = "Installe l'app dans Applications (scripts/install.sh) pour l'activer.";
+"Allow in Login Items…" = "Autoriser dans Éléments de connexion…";
+"Quit BrightBar" = "Quitter BrightBar";
+"Add a point" = "Ajouter un point";
+"Reset to defaults" = "Valeurs par défaut";
+"Brightness changes in a straight line from one point to the next. A manual change pauses the mode until the next point." = "La luminosité varie en ligne droite d'un point au suivant. Un réglage manuel met le mode en pause jusqu'au point suivant.";
+"Darker" = "Plus sombre";
+"Brighter" = "Plus clair";
+"Now: %lld lux → %lld %%" = "Maintenant : %lld lux → %lld %%";
+"Reference points: dark room ≈ 10 lux, office ≈ 300 lux, near a window ≈ 2,000 lux. A manual change pauses the mode for 30 minutes." = "Repères : pièce sombre ≈ 10 lux, bureau ≈ 300 lux, près d'une fenêtre ≈ 2 000 lux. Un réglage manuel met le mode en pause 30 minutes.";
+"This Mac has no ambient light sensor." = "Ce Mac n'a pas de capteur de lumière ambiante.";
+"Hour" = "Heure";
+"Brightness" = "Luminosité";
+"Now" = "Maintenant";
+"%lld:00" = "%lld h";
